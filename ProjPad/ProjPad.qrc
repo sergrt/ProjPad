@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/ProjPad">
+        <file>Resources/folder.png</file>
+        <file>Resources/text.png</file>
+    </qresource>
+</RCC>
