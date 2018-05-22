@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "EditContainer.h"
+#include <QGridLayout>
 
 EditContainer::EditContainer(int id)
     : attached_{ false } {
@@ -31,9 +32,11 @@ void EditContainer::setText(const std::string& text) const {
 }
 void EditContainer::upperTextChanged() {
     syncTexts(upperEdit_, lowerEdit_);
+    emit textChanged(property("id").toInt(), upperEdit_->toPlainText().toStdString());
 }
 void EditContainer::lowerTextChanged() {
     syncTexts(lowerEdit_, upperEdit_);
+    emit textChanged(property("id").toInt(), lowerEdit_->toPlainText().toStdString());
 }
 void EditContainer::syncTexts(QTextEdit* initiator, QTextEdit* receiver) const {
     receiver->blockSignals(true); // prevent circular chainging

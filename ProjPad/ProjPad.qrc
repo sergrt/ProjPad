@@ -2,5 +2,9 @@
     <qresource prefix="/ProjPad">
         <file>Resources/folder.png</file>
         <file>Resources/text.png</file>
+        <file>Resources/folder_add.png</file>
+        <file>Resources/folders.png</file>
+        <file>Resources/page_add.png</file>
+        <file>Resources/reject.png</file>
     </qresource>
 </RCC>

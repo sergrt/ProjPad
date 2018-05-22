@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "View.h"
 #include "EditContainer.h"
+#include "ui_ProjPad.h"
 
-View::View(Project* model)
-    : model_ { model } {
+View::View(ModelInterface* model, ControllerInterface* controller)
+    : model_{ model }, controller_{ controller } {
     if (model_)
         model_->addObserver(this);
 }
@@ -13,11 +14,49 @@ View::~View() {
         model_->removeObserver(this);
 }
 
-void View::setProjectTree(QTreeWidget* tree) {
-    tree_ = tree;
+void View::setupView(Ui::ProjPadClass* const ui) {
+    ui->splitter->setSizes({ 200, 999 });
+
+    tree_ = ui->treeWidget;
+    tabWidget_ = ui->tabWidget;
+
+    connect(tree_, &QTreeWidget::itemActivated, this, [this](QTreeWidgetItem* item) {
+        int id = item->data(0, Qt::UserRole).toInt();
+        controller_->treeSelectionChanged(id);
+    });
+    ////connect(ui.textEdit, &QTextEdit::textChanged, &controller_, &Controller::onTextChanged);
+    connect(ui->actionOpen, &QAction::triggered, this, [this]() {
+        controller_->load();
+    });
+
+    connect(ui->addFolder, &QPushButton::clicked, this, [this]() {
+        controller_->addFolder("newNode");
+    });
 }
-void View::setTabsContainer(QTabWidget* tabWidget) {
-    tabWidget_ = tabWidget;
+
+void View::focusNodeTab(int itemId) {
+    for (int i = 0; i < tabWidget_->count(); ++i) {
+        QWidget* w = tabWidget_->widget(i);
+        if (w->property("id").toInt() == itemId) {
+            tabWidget_->setCurrentIndex(i);
+            w->setFocus();
+            return;
+        }
+    }
+}
+
+void View::openNode(int id) {
+    openNodeInNewTab(id);
+    //focusNodeTab(id);
+}
+void View::openNodeInNewTab(int id) {
+    EditContainer* e = new EditContainer(id);
+    e->setText(model_->nodeText(id));
+    tabWidget_->addTab(e, QString::fromStdString(model_->nodeName(id)));
+    connect(e, &EditContainer::textChanged, this, &View::tabTextChanged);
+}
+void View::tabTextChanged(int id, const std::string& text) {
+    controller_->tabTextChanged(id, text);
 }
 
 void View::updateTree() {
@@ -25,8 +64,14 @@ void View::updateTree() {
         throw std::runtime_error("uninit");
     tree_->clear();
 
-    for (const auto& r : model_->rootNodes_)
+    for (auto r = model_->begin(); r != model_->end(); ++r) {
+        fillTree(*r, nullptr);
+    }
+    /*
+    for (const auto& r : model_) {
         fillTree(r, nullptr);
+    }
+    */
 }
 void View::fillTree(std::shared_ptr<Node> node, QTreeWidgetItem* item) {
     QTreeWidgetItem* curItem = new QTreeWidgetItem(QStringList(node->name().c_str()));
@@ -47,61 +92,4 @@ void View::setIcon(Node::Type type, QTreeWidgetItem* item) {
         item->setIcon(0, QIcon(":/ProjPad/Resources/text.png"));
     else
         throw std::runtime_error("Unhandled type");
-}
-void View::updateText(int id) {
-    // if itemName is in view
-    QTextEdit* textEdit = widgetForTextNode(id);
-    if (!textEdit)
-        return;
-
-    textEdit->blockSignals(true);
-    QTextCursor c = textEdit->textCursor();
-    auto xx = c.position();
-    textEdit->setText(QString::fromStdString(model_->text(id)));
-    QTextCursor c1 = textEdit->textCursor();
-    c1.setPosition(xx);
-    textEdit->setTextCursor(c1);
-    textEdit->blockSignals(false);
-}
-void View::treeSelectionChanged(int id) {
-    if (model_->type(id) != Node::Type::text)
-        return;
-
-    if (!textNodeOpened(id))
-        openTextNode(id);
-    else
-        focusTextNode(id);
-}
-
-bool View::textNodeOpened(int id) const {
-    for (int i = 0; i < tabWidget_->count(); ++i) {
-        QWidget* w = tabWidget_->widget(i);
-        if (w->property("id").toInt() == id)
-            return true;
-    }
-    return false;
-}
-void View::openTextNode(int id) {
-    EditContainer* e = new EditContainer(id);
-    e->setText(model_->text(id));
-    tabWidget_->addTab(e, QString::fromStdString(model_->name(id)));
-    focusTextNode(id);
-}
-void View::focusTextNode(int id) {
-    for (int i = 0; i < tabWidget_->count(); ++i) {
-        QWidget* w = tabWidget_->widget(i);
-        if (w->property("id").toInt() == id) {
-            tabWidget_->setCurrentIndex(i);
-            w->setFocus();
-            return;
-        }
-    }
-}
-QTextEdit* View::widgetForTextNode(int id) {
-    for (int i = 0; i < tabWidget_->count(); ++i) {
-        QWidget* w = tabWidget_->widget(i);
-        if (w->property("id").toInt() == id)
-            return static_cast<QTextEdit*>(w);
-    }
-    return nullptr;
 }

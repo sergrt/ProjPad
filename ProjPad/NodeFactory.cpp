@@ -2,6 +2,7 @@
 #include "NodeFactory.h"
 #include "FolderNode.h"
 #include "TextNode.h"
+#include <stdexcept>
 
 static int nextId = 0;
 

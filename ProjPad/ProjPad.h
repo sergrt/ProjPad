@@ -14,7 +14,5 @@ public:
 
 private:
     Ui::ProjPadClass ui;
-    Project project_;
-    View view_;
     Controller controller_;
 };

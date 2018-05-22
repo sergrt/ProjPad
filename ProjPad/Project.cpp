@@ -76,19 +76,49 @@ std::shared_ptr<Node> Project::findById(int id) const {
     return nullptr;
 }
 
-Node::Type Project::type(int id) const {
+Node::Type Project::projectItemType(int id) const {
     if (auto node = findById(id))
         return node->type();
 
     throw std::runtime_error("Item not found");
 }
-std::string Project::name(int id) const {
+bool Project::textNodeOpened(int id) const {
+    for (const auto& x : openedNodes_) {
+        if (x->id() == id) {
+            return true;
+            
+        }
+    }
+    return false;
+
+    /*
+    const auto x = std::find(std::cbegin(openedNodes_), std::cend(openedNodes_), [id](const std::shared_ptr<Node> node) {
+        return node->id() == id;
+    });
+    return true;// != std::cend(openedNodes_);
+    */
+}
+void Project::openTextNode(int id) {
+    openedNodes_.push_back(findById(id));
+    notifyNodeOpened(id);
+}
+void Project::focusTextNode(int id) {
+}
+void Project::notifyNodeOpened(int id) {
+    for (const auto v : views_) {
+        v->openNode(id);
+    }
+}
+
+
+
+std::string Project::nodeName(int id) const {
     if (auto node = findById(id))
         return node->name();
 
     throw std::runtime_error("Item not found");
 }
-std::string Project::text(int id) const {
+std::string Project::nodeText(int id) const {
     if (auto node = findById(id))
         return (static_cast<TextNode*>(node.get()))->text();
 
@@ -97,28 +127,45 @@ std::string Project::text(int id) const {
 
 
 
-void Project::updateText(int id, const std::string& text) {
+void Project::setNodeText(int id, const std::string& text) {
     if (auto node = findById(id)) {
         auto item = static_cast<TextNode*>(node.get());
         item->setText(text);
-        notifyTextChanged(id);
+        //notifyTextChanged(id);
         return;
     }
 
     throw std::runtime_error("Item not found");
 }
-
+/*
 void Project::notifyTextChanged(int id) {
     for (auto* const observer : views_)
         observer->updateText(id);
 }
+*/
 void Project::notifyTreeChanged() {
     for (auto* const observer : views_)
         observer->updateTree();
 }
+
+
+std::vector<std::shared_ptr<Node>>::iterator Project::begin() {
+    return std::begin(rootNodes_);
+}
+std::vector<std::shared_ptr<Node>>::iterator Project::end() {
+    return std::end(rootNodes_);
+}
+
 void Project::addObserver(Observer* view) {
     views_.push_back(view);
 }
 void Project::removeObserver(Observer* view) {
     std::remove(std::begin(views_), std::end(views_), view);
+}
+
+void Project::addFolder(const std::string& name) {
+    auto node = constructNode(Node::Type::folder);
+    node->setName(name);
+    rootNodes_.emplace_back(std::move(node));
+    notifyTreeChanged();
 }

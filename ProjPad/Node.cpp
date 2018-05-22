@@ -8,7 +8,7 @@ Node::~Node() {
 }
 
 void Node::addChild(std::shared_ptr<Node>&& node) {
-    children_.push_back(node);
+    children_.emplace_back(node);
 }
 
 void Node::setName(const std::string& name) {

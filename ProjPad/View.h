@@ -1,35 +1,35 @@
 #pragma once
 #include "Project.h"
 #include "Observer.h"
+#include <QTreeWidget>
+#include "ControllerInterface.h"
+#include "ViewInterface.h"
 
-class View : public Observer {
+class View : public QObject, public ViewInterface, public Observer {
+    Q_OBJECT
+
 public:
-    View(Project* model);
+    View(ModelInterface* model, ControllerInterface* controller);
     ~View();
-    void render();
-    void setProjectTree(QTreeWidget* tree);
-    void setTabsContainer(QTabWidget* tabWidget);
-    void updateContent(int id);
-    std::string getCurrentText() const;
+    void setupView(Ui::ProjPadClass* const ui) override;
+    void focusNodeTab(int itemId) override;
+    void openNode(int id) override;
+    void openNodeInNewTab(int id);
+    void updateTree() override;
+    
+    //void updateText(int id) override;
 
-
-    virtual void updateTree() override;
-    virtual void updateText(int id) override;
-
-    // From controller
-    void treeSelectionChanged(int id);
 private:
-    Project* model_;
+    ModelInterface* model_;
+    ControllerInterface* controller_;
+
     QTreeWidget* tree_;
     QTabWidget* tabWidget_;
 
     void fillTree(std::shared_ptr<Node> node, QTreeWidgetItem* item);
 
-    bool textNodeOpened(int id) const;
-    void openTextNode(int id);
-    void focusTextNode(int id);
-    QTextEdit* widgetForTextNode(int id);
-
     void setIcon(Node::Type type, QTreeWidgetItem* item);
+public slots:
+    void tabTextChanged(int id, const std::string& text);
 };
 

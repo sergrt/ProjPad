@@ -1,18 +1,23 @@
 #pragma once
 #include "Project.h"
 #include "View.h"
+#include "ControllerInterface.h"
 
-class Controller : public QObject {
-    Q_OBJECT
-
+class Controller : public ControllerInterface {
 public:
-    Controller(Project* model, View* view);
-    void onTreeItemActivated(QTreeWidgetItem* item, int col);
+    Controller();
+    void setupView(Ui::ProjPadClass* const ui) const override;
+    void treeSelectionChanged(int itemId) override;
+    void addFolder(const std::string& name) override;
+
+
+    //void onTreeItemActivated(QTreeWidgetItem* item, int col);
     //void onTextChanged();
-    void onLoadClick();
+    void load() override;
+    void tabTextChanged(int id, const std::string& text) override;
 private:
-    Project* model_;
-    View* view_;
+    ModelInterface* model_;
+    ViewInterface* view_;
 
     int curDocId_;
 };

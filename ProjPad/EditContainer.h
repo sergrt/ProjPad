@@ -1,5 +1,7 @@
 #pragma once
 #include "NamedType.h"
+#include <qframe.h>
+#include <QSplitter>
 
 using CursorPos = NamedType<int, struct CursorPosParameter>;
 using ScrollPos = NamedType<int, struct ScrollPosParameter>;
@@ -23,4 +25,6 @@ private:
     void syncTexts(QTextEdit* initiator, QTextEdit* receiver) const;
     std::pair<CursorPos, ScrollPos> storeScrollPosAndCursorPos(QTextEdit* w) const;
     void restoreScrollPosAndCursorPos(QTextEdit* w, std::pair<CursorPos, ScrollPos> pos) const;
+signals:
+    void textChanged(int id, const std::string& text);
 };
