@@ -5,9 +5,9 @@ class TextNode : public Node {
 public:
     TextNode(int id);
     
-    void setText(const std::string& text);
+    void setText(const std::string& text) override;
     
-    std::string text() const;
+    std::string text() const override;
 private:
     std::string text_;
 };

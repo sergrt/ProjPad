@@ -2,6 +2,7 @@
 #include "View.h"
 #include "EditContainer.h"
 #include "ui_ProjPad.h"
+#include <QFileDialog>
 
 View::View(ModelInterface* model, ControllerInterface* controller)
     : model_{ model }, controller_{ controller } {
@@ -26,7 +27,8 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     });
     ////connect(ui.textEdit, &QTextEdit::textChanged, &controller_, &Controller::onTextChanged);
     connect(ui->actionOpen, &QAction::triggered, this, [this]() {
-        controller_->load();
+        auto fileName = QFileDialog::getOpenFileName(QApplication::activeWindow(), "Open document", QString(), QString("*.xml"));
+        controller_->load(fileName.toStdString());
     });
 
     connect(ui->addFolder, &QPushButton::clicked, this, [this]() {

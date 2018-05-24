@@ -8,6 +8,8 @@ public:
         folder,
         text
     };
+    static std::string typeToString(Type t);
+    static Type stringToType(const std::string& src);
     explicit Node(int id, Type type);
     virtual ~Node() = 0;
     void setName(const std::string& name);
@@ -16,6 +18,8 @@ public:
     Type type() const;
     std::string name() const;
     void addChild(std::shared_ptr<Node>&& node);
+    virtual std::string text() const = 0;
+    virtual void setText(const std::string& text) = 0;
 private:
     int id_;
     Type type_;

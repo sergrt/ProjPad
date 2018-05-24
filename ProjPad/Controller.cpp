@@ -28,8 +28,8 @@ void Controller::onTextChanged() {
     model_->updateText(curDocId_, text);
 }
 */
-void Controller::load() {
-    model_->load();
+void Controller::load(const std::string& fileName) {
+    model_->load(fileName);
 }
 
 void Controller::tabTextChanged(int id, const std::string& text) {

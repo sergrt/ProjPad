@@ -4,6 +4,8 @@
 class FolderNode : public Node {
 public:
     FolderNode(int id);
-    virtual ~FolderNode() override;
+    ~FolderNode() override;
+    std::string text() const override;
+    void setText(const std::string& text) override;
 };
 

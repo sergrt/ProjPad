@@ -13,7 +13,7 @@ public:
 
     //void onTreeItemActivated(QTreeWidgetItem* item, int col);
     //void onTextChanged();
-    void load() override;
+    void load(const std::string& fileName) override;
     void tabTextChanged(int id, const std::string& text) override;
 private:
     ModelInterface* model_;

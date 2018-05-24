@@ -3,6 +3,11 @@
 #include <string>
 #include <vector>
 #include "ModelInterface.h"
+
+namespace pugi {
+    class xml_node;
+}
+
 class Observer;
 
 class Project : public ModelInterface {
@@ -31,7 +36,11 @@ public:
     void removeObserver(Observer* view) override;
 //private:
     std::vector<std::shared_ptr<Node>> rootNodes_;
-    void load() override;
+    void load(const std::string& fileName) override;
+
+    void save(const std::string& fileName) const override;
+    static void saveNode(std::shared_ptr<Node> node, pugi::xml_node& parentXmlNode);
+    static std::shared_ptr<Node> Project::loadNode(const pugi::xml_node& xmlNode);
 private:
     std::vector<Observer*> views_;
     //void notifyTextChanged(int id);

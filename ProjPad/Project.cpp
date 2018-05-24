@@ -3,55 +3,50 @@
 #include "NodeFactory.h"
 #include "TextNode.h"
 #include "Observer.h"
+#include "pugixml.hpp"
+
+namespace xml {
+    char content[] = "Content";
+    char document_node[] = "DocumentNode";
+    namespace attributes {
+        char type[] = "type";
+        char name[] = "name";
+    }
+}
 
 Project::Project() {
 }
-void Project::load() {
+
+std::shared_ptr<Node> Project::loadNode(const pugi::xml_node& xmlNode) {
+    auto node = constructNode(Node::stringToType(xmlNode.attribute(xml::attributes::type).as_string()));
+    auto nameAttribute = xmlNode.attribute(xml::attributes::name);
+    if (!nameAttribute)
+        throw std::runtime_error("Error loading file");
+
+    node->setName(nameAttribute.as_string());
+
+    for (const auto& c : xmlNode.children()) {
+        if (c.type() == pugi::node_pcdata)
+            node->setText(c.value());
+        else
+            node->addChild(loadNode(c));
+    }
+
+    return node;
+}
+void Project::load(const std::string& fileName) {
     rootNodes_.clear();
 
-    auto n1 = constructNode(Node::Type::folder);
-    n1->setName("Folder #1");
-    rootNodes_.push_back(n1);
+    pugi::xml_document doc;
+    /*auto parseResult = */doc.load_file(fileName.c_str());
+    auto contentNode = doc.child(xml::content);
+    if (!contentNode)
+        throw std::runtime_error("Error loading file");
 
-    auto n2 = constructNode(Node::Type::folder);
-    n2->setName("Folder #2");
-    rootNodes_.push_back(n2);
-    
-
-    auto n3 = constructNode(Node::Type::text);
-    n3->setName("Text #1");
-    TextNode* t = static_cast<TextNode*>(n3.get());
-    t->setText("1234567890");
-
-    //rootNodes_.push_back(n3);
-    n2->addChild(std::move(n3));
-
-
-    auto n4 = constructNode(Node::Type::text);
-    n4->setName("Text #2");
-    TextNode* t4 = static_cast<TextNode*>(n4.get());
-    t4->setText("abcdefghijklmn");
-
-    //rootNodes_.push_back(n3);
-    n2->addChild(std::move(n4));
-
-
-    auto n5 = constructNode(Node::Type::text);
-    n5->setName("Root text");
-    TextNode* t5 = static_cast<TextNode*>(n5.get());
-    t5->setText("mmmmmmmmmzzzzzzzzzzzzzz");
-
-    rootNodes_.push_back(n5);
-    auto n6 = constructNode(Node::Type::text);
-    n6->setName("Text #3");
-    TextNode* t6 = static_cast<TextNode*>(n6.get());
-    t6->setText("lllllllllllllllllllllll");
-    n5->addChild(std::move(n6));
-
-
-
-
-
+    for (const auto& c : contentNode.children()) {
+        const auto node = loadNode(c);
+        rootNodes_.push_back(node);
+    }
 
     notifyTreeChanged();
 }
@@ -169,3 +164,36 @@ void Project::addFolder(const std::string& name) {
     rootNodes_.emplace_back(std::move(node));
     notifyTreeChanged();
 }
+
+
+void Project::saveNode(std::shared_ptr<Node> node, pugi::xml_node& parentXmlNode) {
+    pugi::xml_node xmlNode = parentXmlNode.append_child(pugi::node_element);
+    if (!xmlNode.set_name(xml::document_node))
+        throw std::runtime_error("Error saving file");
+    
+    if (!xmlNode.append_attribute(xml::attributes::name).set_value(node->name().c_str()))
+        throw std::runtime_error("Error saving file");
+    
+    if (!xmlNode.append_attribute(xml::attributes::type).set_value(Node::typeToString(node->type()).c_str()))
+        throw std::runtime_error("Error saving file");
+
+    if (node->type() == Node::Type::text) {
+        pugi::xml_node xmlNodeText = xmlNode.append_child(pugi::node_pcdata);
+        if (!xmlNodeText.set_value(node->text().c_str()))
+            throw std::runtime_error("Error saving file");
+    }
+
+    for (const auto& c : node->children_)
+        saveNode(c, xmlNode);
+}
+void Project::save(const std::string& fileName) const {
+    pugi::xml_document doc;
+    auto node = doc.append_child(xml::content);
+
+    for (const auto& n : rootNodes_)
+        saveNode(n, node);
+
+    if (!doc.save_file(fileName.c_str(), "    "))
+        throw std::runtime_error("Error saving file");
+}
+
