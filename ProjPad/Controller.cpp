@@ -31,6 +31,9 @@ void Controller::onTextChanged() {
 void Controller::load(const std::string& fileName) {
     model_->load(fileName);
 }
+void Controller::save(const std::string& fileName) {
+    model_->save(fileName);
+}
 
 void Controller::tabTextChanged(int id, const std::string& text) {
     model_->setNodeText(id, text);

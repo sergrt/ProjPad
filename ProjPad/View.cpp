@@ -28,7 +28,14 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     ////connect(ui.textEdit, &QTextEdit::textChanged, &controller_, &Controller::onTextChanged);
     connect(ui->actionOpen, &QAction::triggered, this, [this]() {
         auto fileName = QFileDialog::getOpenFileName(QApplication::activeWindow(), "Open document", QString(), QString("*.xml"));
-        controller_->load(fileName.toStdString());
+        if (!fileName.isEmpty())
+            controller_->load(fileName.toStdString());
+    });
+
+    connect(ui->actionSaveAs, &QAction::triggered, this, [this]() {
+        auto fileName = QFileDialog::getSaveFileName(QApplication::activeWindow(), "Save document as", QString(), QString("*.xml"));
+        if (!fileName.isEmpty())
+            controller_->save(fileName.toStdString());
     });
 
     connect(ui->addFolder, &QPushButton::clicked, this, [this]() {
