@@ -87,7 +87,13 @@
              </property>
              <property name="icon">
               <iconset resource="ProjPad.qrc">
-               <normaloff>:/ProjPad/Resources/folder_add.png</normaloff>:/ProjPad/Resources/folder_add.png</iconset>
+               <normaloff>:/ProjPad/Resources/icons8-add-folder-16.png</normaloff>:/ProjPad/Resources/icons8-add-folder-16.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
              </property>
              <property name="flat">
               <bool>true</bool>
@@ -101,7 +107,13 @@
              </property>
              <property name="icon">
               <iconset resource="ProjPad.qrc">
-               <normaloff>:/ProjPad/Resources/page_add.png</normaloff>:/ProjPad/Resources/page_add.png</iconset>
+               <normaloff>:/ProjPad/Resources/icons8-add-list-16.png</normaloff>:/ProjPad/Resources/icons8-add-list-16.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
              </property>
              <property name="flat">
               <bool>true</bool>
@@ -115,7 +127,13 @@
              </property>
              <property name="icon">
               <iconset resource="ProjPad.qrc">
-               <normaloff>:/ProjPad/Resources/folders.png</normaloff>:/ProjPad/Resources/folders.png</iconset>
+               <normaloff>:/ProjPad/Resources/icons8-folder-tree-16.png</normaloff>:/ProjPad/Resources/icons8-folder-tree-16.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
              </property>
              <property name="flat">
               <bool>true</bool>
@@ -129,7 +147,13 @@
              </property>
              <property name="icon">
               <iconset resource="ProjPad.qrc">
-               <normaloff>:/ProjPad/Resources/reject.png</normaloff>:/ProjPad/Resources/reject.png</iconset>
+               <normaloff>:/ProjPad/Resources/icons8-cancel-16.png</normaloff>:/ProjPad/Resources/icons8-cancel-16.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
              </property>
              <property name="flat">
               <bool>true</bool>
@@ -141,6 +165,12 @@
         </item>
         <item row="1" column="0">
          <widget class="QTreeWidget" name="treeWidget">
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SingleSelection</enum>
+          </property>
+          <attribute name="headerVisible">
+           <bool>false</bool>
+          </attribute>
           <column>
            <property name="text">
             <string notr="true">1</string>
@@ -173,6 +203,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
    </widget>
    <widget class="QMenu" name="menuMarkdown">
@@ -205,6 +236,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionOpen"/>
+   <addaction name="actionSave"/>
    <addaction name="actionSaveAs"/>
    <addaction name="separator"/>
    <addaction name="actionBold"/>
@@ -212,6 +244,10 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="ProjPad.qrc">
+     <normaloff>:/ProjPad/Resources/icons8-open-30.png</normaloff>:/ProjPad/Resources/icons8-open-30.png</iconset>
+   </property>
    <property name="text">
     <string>Open</string>
    </property>
@@ -257,8 +293,21 @@
    </property>
   </action>
   <action name="actionSaveAs">
+   <property name="icon">
+    <iconset resource="ProjPad.qrc">
+     <normaloff>:/ProjPad/Resources/icons8-save-as-30.png</normaloff>:/ProjPad/Resources/icons8-save-as-30.png</iconset>
+   </property>
    <property name="text">
     <string>Save as...</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset resource="ProjPad.qrc">
+     <normaloff>:/ProjPad/Resources/icons8-save-30.png</normaloff>:/ProjPad/Resources/icons8-save-30.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
    </property>
   </action>
  </widget>

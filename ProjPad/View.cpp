@@ -20,6 +20,9 @@ void View::setupView(Ui::ProjPadClass* const ui) {
 
     tree_ = ui->treeWidget;
     tabWidget_ = ui->tabWidget;
+    save_ = ui->actionSave;
+
+    save_->setEnabled(false);
 
     connect(tree_, &QTreeWidget::itemActivated, this, [this](QTreeWidgetItem* item) {
         int id = item->data(0, Qt::UserRole).toInt();
@@ -36,6 +39,10 @@ void View::setupView(Ui::ProjPadClass* const ui) {
         auto fileName = QFileDialog::getSaveFileName(QApplication::activeWindow(), "Save document as", QString(), QString("*.xml"));
         if (!fileName.isEmpty())
             controller_->save(fileName.toStdString());
+    });
+
+    connect(ui->actionSave, &QAction::triggered, this, [this]() {
+        controller_->save();
     });
 
     connect(ui->addFolder, &QPushButton::clicked, this, [this]() {
@@ -101,4 +108,8 @@ void View::setIcon(Node::Type type, QTreeWidgetItem* item) {
         item->setIcon(0, QIcon(":/ProjPad/Resources/text.png"));
     else
         throw std::runtime_error("Unhandled type");
+}
+
+void View::enableSave() {
+    save_->setEnabled(true);
 }

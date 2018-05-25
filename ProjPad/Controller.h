@@ -7,15 +7,16 @@ class Controller : public ControllerInterface {
 public:
     Controller();
     void setupView(Ui::ProjPadClass* const ui) const override;
-    void treeSelectionChanged(int itemId) override;
-    void addFolder(const std::string& name) override;
+    void treeSelectionChanged(int itemId) const override;
+    void addFolder(const std::string& name) const override;
 
 
     //void onTreeItemActivated(QTreeWidgetItem* item, int col);
     //void onTextChanged();
-    void load(const std::string& fileName) override;
-    void save(const std::string& fileName) override;
-    void tabTextChanged(int id, const std::string& text) override;
+    void load(const std::string& fileName) const override;
+    void save(const std::string& fileName) const override;
+    void save() const override;
+    void tabTextChanged(int id, const std::string& text) const override;
 private:
     ModelInterface* model_;
     ViewInterface* view_;

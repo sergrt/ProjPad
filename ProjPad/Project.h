@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "ModelInterface.h"
+#include <optional>
 
 namespace pugi {
     class xml_node;
@@ -37,8 +38,9 @@ public:
 //private:
     std::vector<std::shared_ptr<Node>> rootNodes_;
     void load(const std::string& fileName) override;
-
     void save(const std::string& fileName) const override;
+    void save() const override;
+
     static void saveNode(std::shared_ptr<Node> node, pugi::xml_node& parentXmlNode);
     static std::shared_ptr<Node> Project::loadNode(const pugi::xml_node& xmlNode);
 private:
@@ -48,4 +50,6 @@ private:
 
     std::shared_ptr<Node> findById(int id) const;
     std::shared_ptr<Node> findById(std::shared_ptr<Node> node, int id) const;
+
+    std::optional<std::string> fileName_;
 };

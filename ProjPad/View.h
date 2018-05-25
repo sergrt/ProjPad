@@ -16,6 +16,8 @@ public:
     void openNode(int id) override;
     void openNodeInNewTab(int id);
     void updateTree() override;
+
+    void enableSave() override;
     
     //void updateText(int id) override;
 
@@ -25,6 +27,7 @@ private:
 
     QTreeWidget* tree_;
     QTabWidget* tabWidget_;
+    QAction* save_;
 
     void fillTree(std::shared_ptr<Node> node, QTreeWidgetItem* item);
 

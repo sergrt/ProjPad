@@ -47,7 +47,8 @@ void Project::load(const std::string& fileName) {
         const auto node = loadNode(c);
         rootNodes_.push_back(node);
     }
-
+    
+    fileName_ = fileName;
     notifyTreeChanged();
 }
 
@@ -197,3 +198,9 @@ void Project::save(const std::string& fileName) const {
         throw std::runtime_error("Error saving file");
 }
 
+void Project::save() const {
+    if (!fileName_)
+        throw std::runtime_error("Attempting to save previously unsaved document");
+
+    save(*fileName_);
+}

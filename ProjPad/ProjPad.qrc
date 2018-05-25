@@ -1,10 +1,13 @@
 <RCC>
     <qresource prefix="/ProjPad">
+        <file>Resources/icons8-add-list-16.png</file>
+        <file>Resources/icons8-add-folder-16.png</file>
+        <file>Resources/icons8-cancel-16.png</file>
+        <file>Resources/icons8-open-30.png</file>
+        <file>Resources/icons8-save-30.png</file>
+        <file>Resources/icons8-save-as-30.png</file>
+        <file>Resources/icons8-folder-tree-16.png</file>
         <file>Resources/folder.png</file>
         <file>Resources/text.png</file>
-        <file>Resources/folder_add.png</file>
-        <file>Resources/folders.png</file>
-        <file>Resources/page_add.png</file>
-        <file>Resources/reject.png</file>
     </qresource>
 </RCC>

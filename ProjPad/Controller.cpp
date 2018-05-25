@@ -8,7 +8,7 @@ Controller::Controller() {
 void Controller::setupView(Ui::ProjPadClass* const ui) const {
     view_->setupView(ui);
 }
-void Controller::treeSelectionChanged(int itemId) {
+void Controller::treeSelectionChanged(int itemId) const {
     if (model_->projectItemType(itemId) != Node::Type::text)
         return;
     if (!model_->textNodeOpened(itemId))
@@ -28,16 +28,20 @@ void Controller::onTextChanged() {
     model_->updateText(curDocId_, text);
 }
 */
-void Controller::load(const std::string& fileName) {
+void Controller::load(const std::string& fileName) const {
     model_->load(fileName);
+    view_->enableSave();
 }
-void Controller::save(const std::string& fileName) {
+void Controller::save(const std::string& fileName) const {
     model_->save(fileName);
 }
+void Controller::save() const {
+    model_->save();
+}
 
-void Controller::tabTextChanged(int id, const std::string& text) {
+void Controller::tabTextChanged(int id, const std::string& text) const {
     model_->setNodeText(id, text);
 }
-void Controller::addFolder(const std::string& name) {
+void Controller::addFolder(const std::string& name) const {
     model_->addFolder(name);
 }
