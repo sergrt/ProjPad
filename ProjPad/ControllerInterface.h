@@ -12,4 +12,5 @@ public:
     virtual void save() const = 0;
     virtual void tabTextChanged(int id, const std::string& text) const = 0;
     virtual void addFolder(const std::string& name) const = 0;
+    virtual void deleteNode(int itemId) const = 0;
 };

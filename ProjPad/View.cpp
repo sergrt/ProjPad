@@ -3,6 +3,7 @@
 #include "EditContainer.h"
 #include "ui_ProjPad.h"
 #include <QFileDialog>
+#include <QMessageBox>
 
 View::View(ModelInterface* model, ControllerInterface* controller)
     : model_{ model }, controller_{ controller } {
@@ -48,6 +49,19 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     connect(ui->addFolder, &QPushButton::clicked, this, [this]() {
         controller_->addFolder("newNode");
     });
+
+    connect(ui->deleteNode, &QPushButton::clicked, this, [this]() {
+        QTreeWidgetItem* item = tree_->currentItem();
+        QString confirmText = "Item will be deleted. Proceed?";
+        if (item->childCount() != 0)
+            confirmText += " (all children items will be deleted also)";
+
+        int res = QMessageBox::warning(tree_, "Confirm", confirmText, QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        if (res == QMessageBox::Yes) {
+            int id = item->data(0, Qt::UserRole).toInt();
+            controller_->deleteNode(id);
+        }
+    });
 }
 
 void View::focusNodeTab(int itemId) {
@@ -65,6 +79,15 @@ void View::openNode(int id) {
     openNodeInNewTab(id);
     //focusNodeTab(id);
 }
+void View::closeNode(int id) {
+    for (int i = 0; i < tabWidget_->count(); ++i) {
+        QWidget* w = tabWidget_->widget(i);
+        if (w->property("id").toInt() == id) {
+            tabWidget_->removeTab(i);
+            return;
+        }
+    }
+}
 void View::openNodeInNewTab(int id) {
     EditContainer* e = new EditContainer(id);
     e->setText(model_->nodeText(id));
@@ -81,7 +104,7 @@ void View::updateTree() {
     tree_->clear();
 
     for (auto r = model_->begin(); r != model_->end(); ++r) {
-        fillTree(*r, nullptr);
+        fillTree(r->get(), nullptr);
     }
     /*
     for (const auto& r : model_) {
@@ -89,7 +112,7 @@ void View::updateTree() {
     }
     */
 }
-void View::fillTree(std::shared_ptr<Node> node, QTreeWidgetItem* item) {
+void View::fillTree(const Node* node, QTreeWidgetItem* item) {
     QTreeWidgetItem* curItem = new QTreeWidgetItem(QStringList(node->name().c_str()));
     curItem->setData(0, Qt::UserRole, QVariant::fromValue(node->id()));
     setIcon(node->type(), curItem);
@@ -99,7 +122,7 @@ void View::fillTree(std::shared_ptr<Node> node, QTreeWidgetItem* item) {
         item->addChild(curItem);
 
     for (const auto& r : node->children_)
-        fillTree(r, curItem);
+        fillTree(r.get(), curItem);
 }
 void View::setIcon(Node::Type type, QTreeWidgetItem* item) {
     if (type == Node::Type::folder)

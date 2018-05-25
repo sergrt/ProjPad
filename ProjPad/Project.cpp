@@ -4,6 +4,7 @@
 #include "TextNode.h"
 #include "Observer.h"
 #include "pugixml.hpp"
+#include <algorithm>
 
 namespace xml {
     char content[] = "Content";
@@ -17,8 +18,8 @@ namespace xml {
 Project::Project() {
 }
 
-std::shared_ptr<Node> Project::loadNode(const pugi::xml_node& xmlNode) {
-    auto node = constructNode(Node::stringToType(xmlNode.attribute(xml::attributes::type).as_string()));
+std::unique_ptr<Node> Project::loadNode(const pugi::xml_node& xmlNode) {
+    auto& node = constructNode(Node::stringToType(xmlNode.attribute(xml::attributes::type).as_string()));
     auto nameAttribute = xmlNode.attribute(xml::attributes::name);
     if (!nameAttribute)
         throw std::runtime_error("Error loading file");
@@ -32,7 +33,7 @@ std::shared_ptr<Node> Project::loadNode(const pugi::xml_node& xmlNode) {
             node->addChild(loadNode(c));
     }
 
-    return node;
+    return std::move(node);
 }
 void Project::load(const std::string& fileName) {
     rootNodes_.clear();
@@ -43,30 +44,50 @@ void Project::load(const std::string& fileName) {
     if (!contentNode)
         throw std::runtime_error("Error loading file");
 
-    for (const auto& c : contentNode.children()) {
-        const auto node = loadNode(c);
-        rootNodes_.push_back(node);
-    }
+    for (const auto& c : contentNode.children())
+        rootNodes_.emplace_back(loadNode(c));
     
     fileName_ = fileName;
     notifyTreeChanged();
 }
 
-std::shared_ptr<Node> Project::findById(std::shared_ptr<Node> node, int id) const {
-    if (node->id() == id)
-        return node;
+Node* Project::findById(Node& node, int id) const {
+    if (node.id() == id)
+        return &node;
 
-    for (const auto& n : node->children_) {
-        if (auto f = findById(n, id))
+    for (const auto& n : node.children_) {
+        if (const auto f = findById(*n, id))
             return f;
     }
 
     return nullptr;
 }
 
-std::shared_ptr<Node> Project::findById(int id) const {
+Node* Project::findById(int id) const {
     for (const auto& r : rootNodes_) {
-        if (auto node = findById(r, id))
+        if (const auto node = findById(*r, id))
+            return node;
+    }
+    throw std::runtime_error("Item not found");
+}
+
+Node* Project::findParentForId(Node& node, int id) const {
+    for (const auto& c : node.children_) {
+        if (c->id() == id)
+            return &node;
+    }
+
+    for (const auto& n : node.children_) {
+        if (auto f = findParentForId(*n, id))
+            return f;
+    }
+
+    return nullptr;
+}
+
+Node* Project::findParentForId(int id) const {
+    for (const auto& r : rootNodes_) {
+        if (const auto node = findParentForId(*r, id))
             return node;
     }
     return nullptr;
@@ -101,11 +122,13 @@ void Project::openTextNode(int id) {
 void Project::focusTextNode(int id) {
 }
 void Project::notifyNodeOpened(int id) {
-    for (const auto v : views_) {
+    for (const auto v : views_)
         v->openNode(id);
-    }
 }
-
+void Project::notifyNodeClosed(int id) {
+    for (const auto v : views_)
+        v->closeNode(id);
+}
 
 
 std::string Project::nodeName(int id) const {
@@ -116,7 +139,7 @@ std::string Project::nodeName(int id) const {
 }
 std::string Project::nodeText(int id) const {
     if (auto node = findById(id))
-        return (static_cast<TextNode*>(node.get()))->text();
+        return static_cast<TextNode*>(node)->text();
 
     throw std::runtime_error("Item not found");
 }
@@ -125,7 +148,7 @@ std::string Project::nodeText(int id) const {
 
 void Project::setNodeText(int id, const std::string& text) {
     if (auto node = findById(id)) {
-        auto item = static_cast<TextNode*>(node.get());
+        auto item = static_cast<TextNode*>(node);
         item->setText(text);
         //notifyTextChanged(id);
         return;
@@ -145,10 +168,10 @@ void Project::notifyTreeChanged() {
 }
 
 
-std::vector<std::shared_ptr<Node>>::iterator Project::begin() {
+std::vector<std::unique_ptr<Node>>::iterator Project::begin() {
     return std::begin(rootNodes_);
 }
-std::vector<std::shared_ptr<Node>>::iterator Project::end() {
+std::vector<std::unique_ptr<Node>>::iterator Project::end() {
     return std::end(rootNodes_);
 }
 
@@ -156,7 +179,7 @@ void Project::addObserver(Observer* view) {
     views_.push_back(view);
 }
 void Project::removeObserver(Observer* view) {
-    std::remove(std::begin(views_), std::end(views_), view);
+    views_.erase(std::find(std::begin(views_), std::end(views_), view));
 }
 
 void Project::addFolder(const std::string& name) {
@@ -167,40 +190,81 @@ void Project::addFolder(const std::string& name) {
 }
 
 
-void Project::saveNode(std::shared_ptr<Node> node, pugi::xml_node& parentXmlNode) {
+void Project::saveNode(const Node& node, pugi::xml_node& parentXmlNode) {
     pugi::xml_node xmlNode = parentXmlNode.append_child(pugi::node_element);
     if (!xmlNode.set_name(xml::document_node))
         throw std::runtime_error("Error saving file");
     
-    if (!xmlNode.append_attribute(xml::attributes::name).set_value(node->name().c_str()))
+    if (!xmlNode.append_attribute(xml::attributes::name).set_value(node.name().c_str()))
         throw std::runtime_error("Error saving file");
     
-    if (!xmlNode.append_attribute(xml::attributes::type).set_value(Node::typeToString(node->type()).c_str()))
+    if (!xmlNode.append_attribute(xml::attributes::type).set_value(Node::typeToString(node.type()).c_str()))
         throw std::runtime_error("Error saving file");
 
-    if (node->type() == Node::Type::text) {
+    if (node.type() == Node::Type::text) {
         pugi::xml_node xmlNodeText = xmlNode.append_child(pugi::node_pcdata);
-        if (!xmlNodeText.set_value(node->text().c_str()))
+        if (!xmlNodeText.set_value(node.text().c_str()))
             throw std::runtime_error("Error saving file");
     }
 
-    for (const auto& c : node->children_)
-        saveNode(c, xmlNode);
+    for (const auto& c : node.children_)
+        saveNode(*c, xmlNode);
 }
-void Project::save(const std::string& fileName) const {
+void Project::save(const std::string& fileName) {
     pugi::xml_document doc;
     auto node = doc.append_child(xml::content);
 
     for (const auto& n : rootNodes_)
-        saveNode(n, node);
+        saveNode(*n, node);
 
     if (!doc.save_file(fileName.c_str(), "    "))
         throw std::runtime_error("Error saving file");
+
+    // Update internal file name
+    fileName_ = fileName;
 }
 
-void Project::save() const {
+void Project::save() {
     if (!fileName_)
         throw std::runtime_error("Attempting to save previously unsaved document");
 
     save(*fileName_);
+}
+
+void Project::closeWithChildrenNodes(Node* node) {
+    for (const auto& c : node->children_)
+        closeWithChildrenNodes(c.get());
+    
+    const auto openedPos = std::find(std::cbegin(openedNodes_), std::cend(openedNodes_), node);
+    if (openedPos != openedNodes_.end()) {
+        notifyNodeClosed(node->id());
+        openedNodes_.erase(openedPos);
+    }
+}
+void Project::deleteNode(int id) {
+    const auto item = findById(id);
+    if (!item)
+        throw std::runtime_error("Item not found");
+
+    closeWithChildrenNodes(item);
+    
+    // delete from parent
+    auto parentNode = findParentForId(item->id());
+    if (parentNode) {
+        parentNode->children_.erase(
+            std::find_if(std::begin(parentNode->children_),
+                std::end(parentNode->children_),
+                [item](const auto& i) {
+                    return i.get() == item;
+                }));
+        
+    }
+    
+    const auto rootPos = std::find_if(std::begin(rootNodes_), std::end(rootNodes_), [item](const auto& i) {
+        return i.get() == item;
+    });
+    if (rootPos != rootNodes_.end())
+        rootNodes_.erase(rootPos);
+        
+    notifyTreeChanged();
 }
