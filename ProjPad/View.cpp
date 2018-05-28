@@ -62,6 +62,10 @@ void View::setupView(Ui::ProjPadClass* const ui) {
             controller_->deleteNode(id);
         }
     });
+
+    connect(tree_, &QTreeWidget::clicked, this, [this](const QModelIndex& index) {
+        int x = 210;
+    });
 }
 
 void View::focusNodeTab(int itemId) {
