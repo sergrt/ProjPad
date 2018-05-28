@@ -51,6 +51,7 @@ private:
     std::vector<Observer*> views_;
     //void notifyTextChanged(int id);
     void notifyTreeChanged();
+    void notifyItemDeleted(int id);
 
     Node* findById(int id) const;
     Node* findById(Node& node, int id) const;

@@ -15,6 +15,7 @@ public:
     void focusNodeTab(int itemId) override;
     void openNode(int id) override;
     void closeNode(int id) override;
+    void nodeDeleted(int id) override;
     void openNodeInNewTab(int id);
     void updateTree() override;
 
@@ -31,8 +32,8 @@ private:
     QAction* save_;
 
     void fillTree(const Node* node, QTreeWidgetItem* item);
-
     void setIcon(Node::Type type, QTreeWidgetItem* item);
+    QTreeWidgetItem* findTreeNode(QTreeWidgetItem* cur, int id) const;
 public slots:
     void tabTextChanged(int id, const std::string& text);
 };

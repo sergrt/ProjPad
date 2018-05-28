@@ -266,5 +266,10 @@ void Project::deleteNode(int id) {
     if (rootPos != rootNodes_.end())
         rootNodes_.erase(rootPos);
         
-    notifyTreeChanged();
+    notifyItemDeleted(id);
+}
+
+void Project::notifyItemDeleted(int id) {
+    for (auto* const observer : views_)
+        observer->nodeDeleted(id);
 }

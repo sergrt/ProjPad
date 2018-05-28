@@ -7,4 +7,5 @@ public:
     //virtual void updateText(int id) = 0;
     virtual void openNode(int id) = 0;
     virtual void closeNode(int id) = 0;
+    virtual void nodeDeleted(int id) = 0;
 };

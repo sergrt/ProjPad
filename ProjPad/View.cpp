@@ -136,3 +136,34 @@ void View::setIcon(Node::Type type, QTreeWidgetItem* item) {
 void View::enableSave() {
     save_->setEnabled(true);
 }
+
+void View::nodeDeleted(int id) {
+    for (int i = tree_->topLevelItemCount() - 1; i >= 0; --i) {
+        const auto top = tree_->topLevelItem(i);
+        const auto item = findTreeNode(top, id);
+        if (item) {
+
+            if (item->parent()) {
+                delete item->parent()->takeChild(item->parent()->indexOfChild(item));
+            } else {
+                auto index = tree_->indexOfTopLevelItem(item);
+                delete tree_->takeTopLevelItem(index);
+            }
+            
+            break;
+        }
+    }
+}
+
+QTreeWidgetItem* View::findTreeNode(QTreeWidgetItem* cur, int id) const {
+    if (cur->data(0, Qt::UserRole).toInt() == id)
+        return cur;
+
+    for (int i = cur->childCount() - 1; i >= 0; --i) {
+        auto res = findTreeNode(cur->child(i), id);
+        if (res)
+            return res;
+    }
+
+    return nullptr;
+}
