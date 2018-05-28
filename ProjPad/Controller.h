@@ -17,6 +17,7 @@ public:
     void save(const std::string& fileName) const override;
     void save() const override;
     void tabTextChanged(int id, const std::string& text) const override;
+    void deleteNode(int itemId) const override;
 private:
     ModelInterface* model_;
     ViewInterface* view_;

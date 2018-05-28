@@ -7,8 +7,8 @@ Node::Node(int id, Type type)
 Node::~Node() {
 }
 
-void Node::addChild(std::shared_ptr<Node>&& node) {
-    children_.emplace_back(node);
+void Node::addChild(std::unique_ptr<Node> node) {
+    children_.emplace_back(std::move(node));
 }
 
 void Node::setName(const std::string& name) {

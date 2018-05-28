@@ -17,7 +17,7 @@ public:
     int id() const;
     Type type() const;
     std::string name() const;
-    void addChild(std::shared_ptr<Node>&& node);
+    void addChild(std::unique_ptr<Node> node);
     virtual std::string text() const = 0;
     virtual void setText(const std::string& text) = 0;
 private:
@@ -25,5 +25,5 @@ private:
     Type type_;
     std::string name_;
 public:
-    std::vector<std::shared_ptr<Node>> children_;
+    std::vector<std::unique_ptr<Node>> children_;
 };

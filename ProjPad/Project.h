@@ -20,15 +20,16 @@ public:
     void openTextNode(int id) override;
     void focusTextNode(int id) override;
 
-    std::vector<std::shared_ptr<Node>> openedNodes_;
+    std::vector<Node*> openedNodes_; // rootNodes_ shared ptr will surely outlive this Node*
     void notifyNodeOpened(int id);
+    void notifyNodeClosed(int id);
 
     std::string nodeName(int id) const override;
     std::string nodeText(int id) const override;
 
 
-    std::vector<std::shared_ptr<Node>>::iterator begin() override;
-    std::vector<std::shared_ptr<Node>>::iterator end() override;
+    std::vector<std::unique_ptr<Node>>::iterator begin() override;
+    std::vector<std::unique_ptr<Node>>::iterator end() override;
     
     void setNodeText(int id, const std::string& text) override;
     void addFolder(const std::string& name) override;
@@ -36,20 +37,27 @@ public:
     void addObserver(Observer* view) override;
     void removeObserver(Observer* view) override;
 //private:
-    std::vector<std::shared_ptr<Node>> rootNodes_;
+    std::vector<std::unique_ptr<Node>> rootNodes_;
     void load(const std::string& fileName) override;
-    void save(const std::string& fileName) const override;
-    void save() const override;
+    void save(const std::string& fileName) override;
+    void save() override;
 
-    static void saveNode(std::shared_ptr<Node> node, pugi::xml_node& parentXmlNode);
-    static std::shared_ptr<Node> Project::loadNode(const pugi::xml_node& xmlNode);
+    static void saveNode(const Node& node, pugi::xml_node& parentXmlNode);
+    static std::unique_ptr<Node> loadNode(const pugi::xml_node& xmlNode);
+
+    void deleteNode(int id) override;
+    void closeWithChildrenNodes(Node* node);
 private:
     std::vector<Observer*> views_;
     //void notifyTextChanged(int id);
     void notifyTreeChanged();
+    void notifyItemDeleted(int id);
 
-    std::shared_ptr<Node> findById(int id) const;
-    std::shared_ptr<Node> findById(std::shared_ptr<Node> node, int id) const;
+    Node* findById(int id) const;
+    Node* findById(Node& node, int id) const;
+
+    Node* findParentForId(int id) const;
+    Node* findParentForId(Node& node, int id) const;
 
     std::optional<std::string> fileName_;
 };
