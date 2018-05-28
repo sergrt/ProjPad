@@ -5,6 +5,8 @@
 #include "ControllerInterface.h"
 #include "ViewInterface.h"
 
+
+
 class View : public QObject, public ViewInterface, public Observer {
     Q_OBJECT
 

@@ -116,6 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ControllerInterface.h" />
+    <ClInclude Include="DeselectableTreeWidget.h" />
     <ClInclude Include="ModelInterface.h" />
     <ClInclude Include="NamedType.h" />
     <ClInclude Include="ViewInterface.h" />

@@ -67,7 +67,7 @@
            <property name="spacing">
             <number>0</number>
            </property>
-           <item row="0" column="5">
+           <item row="0" column="4">
             <spacer name="horizontalSpacer">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -100,7 +100,7 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="3">
+           <item row="0" column="2">
             <widget class="QPushButton" name="addText">
              <property name="text">
               <string/>
@@ -120,27 +120,7 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="2">
-            <widget class="QPushButton" name="addSubfolder">
-             <property name="text">
-              <string/>
-             </property>
-             <property name="icon">
-              <iconset resource="ProjPad.qrc">
-               <normaloff>:/ProjPad/Resources/icons8-folder-tree-16.png</normaloff>:/ProjPad/Resources/icons8-folder-tree-16.png</iconset>
-             </property>
-             <property name="iconSize">
-              <size>
-               <width>16</width>
-               <height>16</height>
-              </size>
-             </property>
-             <property name="flat">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="4">
+           <item row="0" column="3">
             <widget class="QPushButton" name="deleteNode">
              <property name="text">
               <string/>
@@ -164,9 +144,12 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QTreeWidget" name="treeWidget">
+         <widget class="DeselectableTreeWidget" name="treeWidget">
           <property name="selectionMode">
            <enum>QAbstractItemView::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectItems</enum>
           </property>
           <attribute name="headerVisible">
            <bool>false</bool>
@@ -312,6 +295,13 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>DeselectableTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>DeselectableTreeWidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="ProjPad.qrc"/>
  </resources>
