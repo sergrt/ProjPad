@@ -45,6 +45,9 @@ void Controller::tabTextChanged(int id, const std::string& text) const {
 void Controller::addFolder(const std::string& name, std::optional<int> parentId) const {
     model_->addFolder(name, parentId);
 }
+void Controller::addText(const std::string& name, std::optional<int> parentId) const {
+    model_->addText(name, parentId);
+}
 void Controller::deleteNode(int itemId) const {
     model_->deleteNode(itemId);
 }

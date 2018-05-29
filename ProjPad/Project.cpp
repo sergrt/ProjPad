@@ -187,7 +187,13 @@ void Project::removeObserver(Observer* view) {
 }
 
 void Project::addFolder(const std::string& name, std::optional<int> parentId) {
-    auto node = constructNode(Node::Type::folder);
+    addNode(Node::Type::folder, name, parentId);
+}
+void Project::addText(const std::string& name, std::optional<int> parentId) {
+    addNode(Node::Type::text, name, parentId);
+}
+void Project::addNode(Node::Type type, const std::string& name, std::optional<int> parentId) {
+    auto node = constructNode(type);
     const int id = node->id();
     node->setName(name);
 
@@ -197,7 +203,7 @@ void Project::addFolder(const std::string& name, std::optional<int> parentId) {
         auto parentNode = findById(*parentId);
         if (!parentNode)
             throw std::runtime_error("Unable to find parent node");
-        
+
         parentNode->addChild(std::move(node));
     }
 

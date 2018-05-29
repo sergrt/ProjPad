@@ -9,6 +9,7 @@ public:
     void setupView(Ui::ProjPadClass* const ui) const override;
     void treeSelectionChanged(int itemId) const override;
     void addFolder(const std::string& name, std::optional<int> parentId) const override;
+    void addText(const std::string& name, std::optional<int> parentId) const override;
 
 
     //void onTreeItemActivated(QTreeWidgetItem* item, int col);

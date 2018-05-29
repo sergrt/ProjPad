@@ -24,6 +24,7 @@ public:
     virtual void setNodeText(int id, const std::string& text) = 0;
 
     virtual void addFolder(const std::string& name, std::optional<int> parentId) = 0;
+    virtual void addText(const std::string& name, std::optional<int> parentId) = 0;
     virtual void deleteNode(int id) = 0;
     virtual void renameNode(int id, const std::string& name) = 0;
 
