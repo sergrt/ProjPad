@@ -74,6 +74,15 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     connect(tree_, &QTreeWidget::itemChanged, this, [this](QTreeWidgetItem* item, int column) {
         controller_->renameNode(itemId(*item), item->text(0).toStdString());
     });
+    connect(tabWidget_, &QTabWidget::tabCloseRequested, this, [this](int index) {
+        EditContainer* w = static_cast<EditContainer*>(tabWidget_->widget(index));
+        controller_->closeNode(w->id());
+        /*
+        QWidget* w = tabWidget_->widget(index);
+        tabWidget_->removeTab(index);
+        delete w;
+        */
+    });
 }
 std::pair<int, QWidget*> View::nodeTab(int id) {
     for (int i = 0; i < tabWidget_->count(); ++i) {

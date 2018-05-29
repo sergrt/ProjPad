@@ -13,6 +13,7 @@ public:
     EditContainer(int id);
     ~EditContainer();
     void setText(const std::string& text) const;
+    int id() const;
 private:
     bool attached_;
     QTextEdit* upperEdit_;

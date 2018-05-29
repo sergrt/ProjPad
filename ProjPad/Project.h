@@ -49,6 +49,7 @@ public:
     void deleteNode(int id) override;
     void renameNode(int id, const std::string& name) override;
     void closeWithChildrenNodes(Node* node);
+    void closeNode(int id) override;
 private:
     std::vector<Observer*> views_;
     //void notifyTextChanged(int id);

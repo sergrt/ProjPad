@@ -54,3 +54,6 @@ void Controller::deleteNode(int itemId) const {
 void Controller::renameNode(int itemId, const std::string& name) const {
     model_->renameNode(itemId, name);
 }
+void Controller::closeNode(int itemId) const {
+    model_->closeNode(itemId);
+}

@@ -15,4 +15,5 @@ public:
     virtual void addText(const std::string& name, std::optional<int> parentId) const = 0;
     virtual void deleteNode(int itemId) const = 0;
     virtual void renameNode(int itemId, const std::string& name) const = 0;
+    virtual void closeNode(int itemId) const = 0;
 };

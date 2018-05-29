@@ -308,3 +308,10 @@ void Project::notifyNodeRenamed(int id) {
     for (auto* const observer : views_)
         observer->nodeRenamed(id);
 }
+
+void Project::closeNode(int id) {
+    openedNodes_.erase(
+        std::find(std::begin(openedNodes_), std::end(openedNodes_), findById(id))
+    );
+    notifyNodeClosed(id);
+}

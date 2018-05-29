@@ -20,6 +20,7 @@ public:
     void tabTextChanged(int id, const std::string& text) const override;
     void deleteNode(int itemId) const override;
     void renameNode(int itemId, const std::string& name) const override;
+    void closeNode(int itemId) const override;
 private:
     ModelInterface* model_;
     ViewInterface* view_;

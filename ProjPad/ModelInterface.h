@@ -12,6 +12,7 @@ public:
     virtual bool textNodeOpened(int id) const = 0;
     virtual void openTextNode(int id) = 0;
     virtual void focusTextNode(int id) = 0;
+    virtual void closeNode(int id) = 0;
 
     virtual std::string nodeName(int id) const = 0;
     virtual std::string nodeText(int id) const = 0;

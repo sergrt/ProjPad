@@ -59,3 +59,6 @@ void EditContainer::restoreScrollPosAndCursorPos(QTextEdit* w, std::pair<CursorP
     w->setTextCursor(receiverCursorNew);
     w->verticalScrollBar()->setValue(pos.second.get());
 }
+int EditContainer::id() const {
+    return property("id").toInt();
+}
