@@ -8,7 +8,7 @@ public:
     virtual ~DeselectableTreeWidget() {}
 
 private:
-    virtual void mousePressEvent(QMouseEvent* event) {
+    void mousePressEvent(QMouseEvent* event) override {
         QModelIndex item = indexAt(event->pos());
         bool selected = selectionModel()->isSelected(indexAt(event->pos()));
         QTreeView::mousePressEvent(event);
@@ -18,4 +18,15 @@ private:
             selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
         }
     }
+    /*
+    void mouseDoubleClickEvent(QMouseEvent* event) override {
+        QTreeWidgetItem* item = itemAt(event->pos());
+        
+        QTreeView::mouseDoubleClickEvent(event);
+        if (item) {
+            item->setFlags(item->flags() | Qt::ItemIsEditable);
+            //this->editItem(item);
+        }
+    }
+    */
 };

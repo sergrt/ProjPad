@@ -22,6 +22,8 @@ public:
     void updateTree() override;
 
     void enableSave() override;
+    void nodeAdded(int id, std::optional<int> parentId) override;
+    void nodeRenamed(int id) override;
     
     //void updateText(int id) override;
 
@@ -34,8 +36,12 @@ private:
     QAction* save_;
 
     void fillTree(const Node* node, QTreeWidgetItem* item);
-    void setIcon(Node::Type type, QTreeWidgetItem* item);
+    static void setIcon(Node::Type type, QTreeWidgetItem* item);
+    QTreeWidgetItem* findTreeNode(int id) const;
     QTreeWidgetItem* findTreeNode(QTreeWidgetItem* cur, int id) const;
+    static int itemId(QTreeWidgetItem& item);
+    static void setItemId(QTreeWidgetItem& item, int id);
+    QTreeWidgetItem* createTreeItem(int id);
 public slots:
     void tabTextChanged(int id, const std::string& text);
 };
