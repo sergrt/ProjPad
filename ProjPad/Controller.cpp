@@ -42,10 +42,12 @@ void Controller::save() const {
 void Controller::tabTextChanged(int id, const std::string& text) const {
     model_->setNodeText(id, text);
 }
-void Controller::addFolder(const std::string& name) const {
-    model_->addFolder(name);
+void Controller::addFolder(const std::string& name, std::optional<int> parentId) const {
+    model_->addFolder(name, parentId);
 }
-
 void Controller::deleteNode(int itemId) const {
     model_->deleteNode(itemId);
+}
+void Controller::renameNode(int itemId, const std::string& name) const {
+    model_->renameNode(itemId, name);
 }

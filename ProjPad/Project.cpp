@@ -143,8 +143,12 @@ std::string Project::nodeText(int id) const {
 
     throw std::runtime_error("Item not found");
 }
+Node::Type Project::nodeType(int id) const {
+    if (auto node = findById(id))
+        return node->type();
 
-
+    throw std::runtime_error("Item not found");
+}
 
 void Project::setNodeText(int id, const std::string& text) {
     if (auto node = findById(id)) {
@@ -182,11 +186,26 @@ void Project::removeObserver(Observer* view) {
     views_.erase(std::find(std::begin(views_), std::end(views_), view));
 }
 
-void Project::addFolder(const std::string& name) {
+void Project::addFolder(const std::string& name, std::optional<int> parentId) {
     auto node = constructNode(Node::Type::folder);
+    const int id = node->id();
     node->setName(name);
-    rootNodes_.emplace_back(std::move(node));
-    notifyTreeChanged();
+
+    if (!parentId) {
+        rootNodes_.emplace_back(std::move(node));
+    } else {
+        auto parentNode = findById(*parentId);
+        if (!parentNode)
+            throw std::runtime_error("Unable to find parent node");
+        
+        parentNode->addChild(std::move(node));
+    }
+
+    notifyNodeAdded(id, parentId);
+}
+void Project::notifyNodeAdded(int id, std::optional<int> parentId) {
+    for (auto* const observer : views_)
+        observer->nodeAdded(id, parentId);
 }
 
 
@@ -272,4 +291,14 @@ void Project::deleteNode(int id) {
 void Project::notifyItemDeleted(int id) {
     for (auto* const observer : views_)
         observer->nodeDeleted(id);
+}
+
+void Project::renameNode(int id, const std::string& name) {
+    findById(id)->setName(name);
+    notifyNodeRenamed(id);
+}
+
+void Project::notifyNodeRenamed(int id) {
+    for (auto* const observer : views_)
+        observer->nodeRenamed(id);
 }

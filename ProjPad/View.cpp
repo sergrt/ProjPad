@@ -16,6 +16,13 @@ View::~View() {
         model_->removeObserver(this);
 }
 
+int View::itemId(QTreeWidgetItem& item) {
+    return item.data(0, Qt::UserRole).toInt();
+}
+void View::setItemId(QTreeWidgetItem& item, int id) {
+    item.setData(0, Qt::UserRole, id);
+}
+
 void View::setupView(Ui::ProjPadClass* const ui) {
     ui->splitter->setSizes({ 200, 999 });
 
@@ -26,8 +33,7 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     save_->setEnabled(false);
 
     connect(tree_, &QTreeWidget::itemActivated, this, [this](QTreeWidgetItem* item) {
-        int id = item->data(0, Qt::UserRole).toInt();
-        controller_->treeSelectionChanged(id);
+        controller_->treeSelectionChanged(itemId(*item));
     });
     ////connect(ui.textEdit, &QTextEdit::textChanged, &controller_, &Controller::onTextChanged);
     connect(ui->actionOpen, &QAction::triggered, this, [this]() {
@@ -47,7 +53,8 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     });
 
     connect(ui->addFolder, &QPushButton::clicked, this, [this]() {
-        controller_->addFolder("newNode");
+        QTreeWidgetItem* item = tree_->currentItem();
+        controller_->addFolder("New folder", item ? std::make_optional<int>(itemId(*item)) : std::nullopt);
     });
 
     connect(ui->deleteNode, &QPushButton::clicked, this, [this]() {
@@ -57,14 +64,11 @@ void View::setupView(Ui::ProjPadClass* const ui) {
             confirmText += " (all children items will be deleted also)";
 
         int res = QMessageBox::warning(tree_, "Confirm", confirmText, QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-        if (res == QMessageBox::Yes) {
-            int id = item->data(0, Qt::UserRole).toInt();
-            controller_->deleteNode(id);
-        }
+        if (res == QMessageBox::Yes)
+            controller_->deleteNode(itemId(*item));
     });
-
-    connect(tree_, &QTreeWidget::clicked, this, [this](const QModelIndex& index) {
-        int x = 210;
+    connect(tree_, &QTreeWidget::itemChanged, this, [this](QTreeWidgetItem* item, int column) {
+        controller_->renameNode(itemId(*item), item->text(0).toStdString());
     });
 }
 
@@ -116,10 +120,15 @@ void View::updateTree() {
     }
     */
 }
+QTreeWidgetItem* View::createTreeItem(int id) {
+    QTreeWidgetItem* curItem = new QTreeWidgetItem(QStringList(model_->nodeName(id).c_str()));
+    curItem->setFlags(curItem->flags() | Qt::ItemIsEditable);
+    setItemId(*curItem, id);
+    setIcon(model_->nodeType(id), curItem);
+    return curItem;
+}
 void View::fillTree(const Node* node, QTreeWidgetItem* item) {
-    QTreeWidgetItem* curItem = new QTreeWidgetItem(QStringList(node->name().c_str()));
-    curItem->setData(0, Qt::UserRole, QVariant::fromValue(node->id()));
-    setIcon(node->type(), curItem);
+    QTreeWidgetItem* curItem = createTreeItem(node->id());
     if (!item)
         tree_->addTopLevelItem(curItem);
     else
@@ -142,25 +151,28 @@ void View::enableSave() {
 }
 
 void View::nodeDeleted(int id) {
-    for (int i = tree_->topLevelItemCount() - 1; i >= 0; --i) {
-        const auto top = tree_->topLevelItem(i);
-        const auto item = findTreeNode(top, id);
-        if (item) {
-
-            if (item->parent()) {
-                delete item->parent()->takeChild(item->parent()->indexOfChild(item));
-            } else {
-                auto index = tree_->indexOfTopLevelItem(item);
-                delete tree_->takeTopLevelItem(index);
-            }
-            
-            break;
+    const auto item = findTreeNode(id);
+    if (item) {
+        if (item->parent()) {
+            delete item->parent()->takeChild(item->parent()->indexOfChild(item));
+        } else {
+            auto index = tree_->indexOfTopLevelItem(item);
+            delete tree_->takeTopLevelItem(index);
         }
     }
 }
+QTreeWidgetItem* View::findTreeNode(int id) const {
+    for (int i = tree_->topLevelItemCount() - 1; i >= 0; --i) {
+        const auto top = tree_->topLevelItem(i);
+        const auto item = findTreeNode(top, id);
+        if (item)
+            return item;
+    }
+    return nullptr;
+}
 
 QTreeWidgetItem* View::findTreeNode(QTreeWidgetItem* cur, int id) const {
-    if (cur->data(0, Qt::UserRole).toInt() == id)
+    if (itemId(*cur) == id)
         return cur;
 
     for (int i = cur->childCount() - 1; i >= 0; --i) {
@@ -170,4 +182,25 @@ QTreeWidgetItem* View::findTreeNode(QTreeWidgetItem* cur, int id) const {
     }
 
     return nullptr;
+}
+
+void View::nodeAdded(int id, std::optional<int> parentId) {
+    QTreeWidgetItem* curItem = createTreeItem(id);
+    if (parentId) {
+        auto item = findTreeNode(*parentId);
+        if (!item)
+            throw std::runtime_error("Parent node not found");
+
+        item->addChild(curItem);
+
+        if (!item->isExpanded())
+            item->setExpanded(true);
+    }
+
+    tree_->addTopLevelItem(curItem);
+}
+
+void View::nodeRenamed(int id) {
+    // No need to rename here, because renaming can be triggered only from view
+    //findTreeNode(id)->setText(0, model_->nodeName(id).c_str());
 }

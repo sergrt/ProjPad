@@ -8,7 +8,7 @@ public:
     Controller();
     void setupView(Ui::ProjPadClass* const ui) const override;
     void treeSelectionChanged(int itemId) const override;
-    void addFolder(const std::string& name) const override;
+    void addFolder(const std::string& name, std::optional<int> parentId) const override;
 
 
     //void onTreeItemActivated(QTreeWidgetItem* item, int col);
@@ -18,6 +18,7 @@ public:
     void save() const override;
     void tabTextChanged(int id, const std::string& text) const override;
     void deleteNode(int itemId) const override;
+    void renameNode(int itemId, const std::string& name) const override;
 private:
     ModelInterface* model_;
     ViewInterface* view_;
