@@ -33,6 +33,7 @@ public:
     
     void setNodeText(int id, const std::string& text) override;
     void addFolder(const std::string& name, std::optional<int> parentId) override;
+    void addText(const std::string& name, std::optional<int> parentId) override;
 
     void addObserver(Observer* view) override;
     void removeObserver(Observer* view) override;
@@ -61,6 +62,8 @@ private:
 
     Node* findParentForId(int id) const;
     Node* findParentForId(Node& node, int id) const;
+
+    void addNode(Node::Type type, const std::string& name, std::optional<int> parentId);
 
     std::optional<std::string> fileName_;
 };

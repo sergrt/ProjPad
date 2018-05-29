@@ -42,6 +42,7 @@ private:
     static int itemId(QTreeWidgetItem& item);
     static void setItemId(QTreeWidgetItem& item, int id);
     QTreeWidgetItem* createTreeItem(int id);
+    std::pair<int, QWidget*> nodeTab(int id);
 public slots:
     void tabTextChanged(int id, const std::string& text);
 };

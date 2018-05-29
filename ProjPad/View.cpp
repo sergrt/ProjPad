@@ -56,6 +56,10 @@ void View::setupView(Ui::ProjPadClass* const ui) {
         QTreeWidgetItem* item = tree_->currentItem();
         controller_->addFolder("New folder", item ? std::make_optional<int>(itemId(*item)) : std::nullopt);
     });
+    connect(ui->addText, &QPushButton::clicked, this, [this]() {
+        QTreeWidgetItem* item = tree_->currentItem();
+        controller_->addText("New text", item ? std::make_optional<int>(itemId(*item)) : std::nullopt);
+    });
 
     connect(ui->deleteNode, &QPushButton::clicked, this, [this]() {
         QTreeWidgetItem* item = tree_->currentItem();
@@ -71,15 +75,19 @@ void View::setupView(Ui::ProjPadClass* const ui) {
         controller_->renameNode(itemId(*item), item->text(0).toStdString());
     });
 }
-
-void View::focusNodeTab(int itemId) {
+std::pair<int, QWidget*> View::nodeTab(int id) {
     for (int i = 0; i < tabWidget_->count(); ++i) {
         QWidget* w = tabWidget_->widget(i);
-        if (w->property("id").toInt() == itemId) {
-            tabWidget_->setCurrentIndex(i);
-            w->setFocus();
-            return;
-        }
+        if (w->property("id").toInt() == id)
+            return std::make_pair(i, w);
+    }
+    return std::make_pair(0, nullptr);
+}
+void View::focusNodeTab(int itemId) {
+    auto w = nodeTab(itemId);
+    if (w.second) {
+        tabWidget_->setCurrentIndex(w.first);
+        w.second->setFocus();
     }
 }
 
@@ -88,12 +96,10 @@ void View::openNode(int id) {
     //focusNodeTab(id);
 }
 void View::closeNode(int id) {
-    for (int i = 0; i < tabWidget_->count(); ++i) {
-        QWidget* w = tabWidget_->widget(i);
-        if (w->property("id").toInt() == id) {
-            tabWidget_->removeTab(i);
-            return;
-        }
+    auto w = nodeTab(id);
+    if (w.second) {
+        tabWidget_->removeTab(w.first);
+        delete w.second;
     }
 }
 void View::openNodeInNewTab(int id) {
@@ -201,6 +207,13 @@ void View::nodeAdded(int id, std::optional<int> parentId) {
 }
 
 void View::nodeRenamed(int id) {
-    // No need to rename here, because renaming can be triggered only from view
+    // No need to rename tree node here, because renaming can be triggered only from view
     //findTreeNode(id)->setText(0, model_->nodeName(id).c_str());
+
+    // Need to rename tab if such exists
+    if (model_->nodeType(id) == Node::Type::text) {
+        auto w = nodeTab(id);
+        if (w.second)
+            tabWidget_->setTabText(w.first, model_->nodeName(id).c_str());
+    }
 }
