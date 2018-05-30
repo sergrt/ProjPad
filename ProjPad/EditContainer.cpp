@@ -17,6 +17,7 @@ EditContainer::EditContainer(int id)
     splitter_->setSizes({ 0,10 });
 
     layout()->addWidget(splitter_);
+    layout()->setMargin(2);
 
     connect(upperEdit_, &QTextEdit::textChanged, this, &EditContainer::upperTextChanged);
     connect(lowerEdit_, &QTextEdit::textChanged, this, &EditContainer::lowerTextChanged);

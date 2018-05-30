@@ -1,0 +1,7 @@
+QTreeWidget, QTextEdit, QTabBar {
+    background-color: #dadaca;
+}
+QWidget {
+    font-family: "Verdana";
+    font-size: 14px;
+}

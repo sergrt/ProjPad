@@ -43,6 +43,11 @@ private:
     static void setItemId(QTreeWidgetItem& item, int id);
     QTreeWidgetItem* createTreeItem(int id);
     std::pair<int, QWidget*> nodeTab(int id);
+    void fillStyleMenu(QMenu& menu);
+    void applyStyleSheetWithFontOverride(const QString& styleSheet);
+    QString fontStyle_;
+    static QString fontToStyleSheet(const QFont& font);
+    static int fontPixelSize(const QFont& font);
 public slots:
     void tabTextChanged(int id, const std::string& text);
 };

@@ -1,6 +1,7 @@
 #pragma once
 #include "QTreeWidget"
 #include "QMouseEvent"
+#include "QDateTime"
 
 class DeselectableTreeWidget : public QTreeWidget {
 public:
@@ -10,23 +11,31 @@ public:
 private:
     void mousePressEvent(QMouseEvent* event) override {
         QModelIndex item = indexAt(event->pos());
-        bool selected = selectionModel()->isSelected(indexAt(event->pos()));
+        
+        // Edit item if two clicks detected on the same item within predefined time interval
+        if (item == lastPressedItem_) {
+            const auto dt = QDateTime::currentDateTime();
+            static const int editTimeLimitFrom = 500;
+            static const int editTimeLimitTo = 3000;
+
+            if (lastPressedTime_.msecsTo(dt) >= editTimeLimitFrom && lastPressedTime_.msecsTo(dt) <= editTimeLimitTo)
+                this->editItem(itemAt(event->pos()));
+
+            // update last pressed time
+            lastPressedTime_ = QDateTime::currentDateTime();
+        } else {
+            lastPressedItem_ = item;
+            lastPressedTime_ = QDateTime::currentDateTime();
+        }
+        // Uncomment to select-deselect when same item clicked twice
+        //bool selected = selectionModel()->isSelected(indexAt(event->pos()));
         QTreeView::mousePressEvent(event);
-        if ((item.row() == -1 && item.column() == -1) || selected) {
+        if ((item.row() == -1 && item.column() == -1) /*|| selected*/) {
             clearSelection();
             const QModelIndex index;
             selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
         }
     }
-    /*
-    void mouseDoubleClickEvent(QMouseEvent* event) override {
-        QTreeWidgetItem* item = itemAt(event->pos());
-        
-        QTreeView::mouseDoubleClickEvent(event);
-        if (item) {
-            item->setFlags(item->flags() | Qt::ItemIsEditable);
-            //this->editItem(item);
-        }
-    }
-    */
+    QModelIndex lastPressedItem_;
+    QDateTime lastPressedTime_;
 };

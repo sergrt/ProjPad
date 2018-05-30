@@ -8,5 +8,7 @@
         <file>Resources/icons8-save-as-30.png</file>
         <file>Resources/folder.png</file>
         <file>Resources/text.png</file>
+        <file>Resources/collapse.png</file>
+        <file>Resources/expand.png</file>
     </qresource>
 </RCC>

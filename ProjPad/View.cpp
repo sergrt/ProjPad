@@ -4,6 +4,7 @@
 #include "ui_ProjPad.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QFontDialog>
 
 View::View(ModelInterface* model, ControllerInterface* controller)
     : model_{ model }, controller_{ controller } {
@@ -23,6 +24,32 @@ void View::setItemId(QTreeWidgetItem& item, int id) {
     item.setData(0, Qt::UserRole, id);
 }
 
+void View::fillStyleMenu(QMenu& menu) {
+    // Default action - reset styles
+    QAction* a = new QAction("*default");
+    connect(a, &QAction::triggered, this, [this]() {
+        applyStyleSheetWithFontOverride("");
+    });
+    menu.addAction(a);
+
+    QDir styleDir("styles");
+    auto files = styleDir.entryList(QStringList{ "*.qss" });
+    for (const auto& file : files) {
+        QAction* a = new QAction(file);
+
+        connect(a, &QAction::triggered, this, [styleDir, file, this]() {
+            QFile f(styleDir.dirName() + "/" + file);
+            if (f.exists() && f.open(QIODevice::Text | QIODevice::ReadOnly)) {
+                this->fontStyle_ = ""; // clear global font if we load style
+                applyStyleSheetWithFontOverride(QString(f.readAll()));
+            }
+        });
+        menu.addAction(a);
+    }
+}
+void View::applyStyleSheetWithFontOverride(const QString& styleSheet) {
+    QApplication::activeWindow()->setStyleSheet(styleSheet + this->fontStyle_);
+}
 void View::setupView(Ui::ProjPadClass* const ui) {
     ui->splitter->setSizes({ 200, 999 });
 
@@ -31,7 +58,8 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     save_ = ui->actionSave;
 
     save_->setEnabled(false);
-
+    fillStyleMenu(*ui->menuStyle);
+    
     connect(tree_, &QTreeWidget::itemActivated, this, [this](QTreeWidgetItem* item) {
         controller_->treeSelectionChanged(itemId(*item));
     });
@@ -83,6 +111,36 @@ void View::setupView(Ui::ProjPadClass* const ui) {
         delete w;
         */
     });
+    connect(ui->actionGlobalFont, &QAction::triggered, this, [this]() {
+        QFont curFont = QApplication::activeWindow()->font();
+        QFontDialog fontDialog(curFont);
+        
+        if (fontDialog.exec() == QDialog::Accepted) {
+            fontStyle_ = fontToStyleSheet(fontDialog.selectedFont());
+            applyStyleSheetWithFontOverride(QApplication::activeWindow()->styleSheet());
+        }
+    });
+}
+int View::fontPixelSize(const QFont& font) {
+    int pixelSize = font.pixelSize();
+    if (pixelSize == -1) {
+        const int dpiX = qApp->desktop()->logicalDpiX();
+        pixelSize = font.pointSize() / 72.0 * dpiX;
+    }
+    
+    return pixelSize;
+}
+
+QString View::fontToStyleSheet(const QFont& font) {
+    const int pixelSize = fontPixelSize(font);
+
+    QString style = QString("QWidget {\n")
+        + "    font-family: " + font.family() + ";\n"
+        + "    font-size: " + QString::fromStdString(std::to_string(pixelSize)) + "px;\n"
+        + "    font-weight: " + (font.bold() ? "bold;" : "normal") + ";\n"
+        + "}\n";
+
+    return style;
 }
 std::pair<int, QWidget*> View::nodeTab(int id) {
     for (int i = 0; i < tabWidget_->count(); ++i) {
