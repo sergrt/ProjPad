@@ -107,6 +107,7 @@
     <ClCompile Include="Project.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="ProjPad.cpp" />
+    <ClCompile Include="Settings.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -119,6 +120,7 @@
     <ClInclude Include="DeselectableTreeWidget.h" />
     <ClInclude Include="ModelInterface.h" />
     <ClInclude Include="NamedType.h" />
+    <ClInclude Include="Settings.h" />
     <ClInclude Include="ViewInterface.h" />
     <CustomBuild Include="EditContainer.h">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing EditContainer.h...</Message>
