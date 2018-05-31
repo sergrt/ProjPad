@@ -43,7 +43,7 @@ void Settings::setFontOverride(const QString& qss) {
     fontOverride_ = qss;
     //save();
 }
-void Settings::setTheme(const QString themeName) {
+void Settings::setTheme(const QString& themeName) {
     theme_ = themeName;
     //save();
 }

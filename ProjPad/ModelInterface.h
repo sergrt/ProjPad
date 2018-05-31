@@ -4,11 +4,11 @@ class Observer;
 
 class ModelInterface {
 public:
+    virtual ~ModelInterface() {}
     virtual void load(const std::string& fileName) = 0;
     virtual void save(const std::string& fileName) = 0;
     virtual void save() = 0;
 
-    virtual Node::Type projectItemType(int id) const = 0;
     virtual bool textNodeOpened(int id) const = 0;
     virtual void openTextNode(int id) = 0;
     virtual void focusTextNode(int id) = 0;

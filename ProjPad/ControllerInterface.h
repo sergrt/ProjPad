@@ -5,6 +5,7 @@ namespace Ui {
 
 class ControllerInterface {
 public:
+    virtual ~ControllerInterface() {}
     virtual void setupView(Ui::ProjPadClass* const) const = 0;
     virtual void treeSelectionChanged(int itemId) const = 0;
     virtual void load(const std::string& fileName) const = 0;

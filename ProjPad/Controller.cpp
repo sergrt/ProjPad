@@ -13,7 +13,7 @@ void Controller::setupView(Ui::ProjPadClass* const ui) const {
     view_->setupView(ui);
 }
 void Controller::treeSelectionChanged(int itemId) const {
-    if (model_->projectItemType(itemId) != Node::Type::text)
+    if (model_->nodeType(itemId) != Node::Type::text)
         return;
     if (!model_->textNodeOpened(itemId))
         model_->openTextNode(itemId);

@@ -93,12 +93,6 @@ Node* Project::findParentForId(int id) const {
     return nullptr;
 }
 
-Node::Type Project::projectItemType(int id) const {
-    if (auto node = findById(id))
-        return node->type();
-
-    throw std::runtime_error("Item not found");
-}
 bool Project::textNodeOpened(int id) const {
     for (const auto& x : openedNodes_) {
         if (x->id() == id) {

@@ -9,7 +9,7 @@ public:
     QString theme() const;
 
     void setFontOverride(const QString& qss);
-    void setTheme(const QString themeName);
+    void setTheme(const QString& themeName);
     
     void save() const;
 private:

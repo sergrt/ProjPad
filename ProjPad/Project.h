@@ -15,7 +15,6 @@ class Project : public ModelInterface {
 public:
     Project();
     
-    Node::Type projectItemType(int id) const override;
     bool textNodeOpened(int id) const override;
     void openTextNode(int id) override;
     void focusTextNode(int id) override;
