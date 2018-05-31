@@ -5,6 +5,10 @@ Controller::Controller() {
     model_ = new Project();
     view_ = new View(model_, this);
 }
+Controller::~Controller() {
+    delete view_;
+    delete model_;
+}
 void Controller::setupView(Ui::ProjPadClass* const ui) const {
     view_->setupView(ui);
 }

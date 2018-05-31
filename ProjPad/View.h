@@ -4,10 +4,10 @@
 #include <QTreeWidget>
 #include "ControllerInterface.h"
 #include "ViewInterface.h"
+#include "Settings.h"
 
 
-
-class View : public QObject, public ViewInterface, public Observer {
+class View : public QWidget, public ViewInterface, public Observer {
     Q_OBJECT
 
 public:
@@ -35,6 +35,8 @@ private:
     QTabWidget* tabWidget_;
     QAction* save_;
 
+    Settings settings_;
+
     void fillTree(const Node* node, QTreeWidgetItem* item);
     static void setIcon(Node::Type type, QTreeWidgetItem* item);
     QTreeWidgetItem* findTreeNode(int id) const;
@@ -43,11 +45,15 @@ private:
     static void setItemId(QTreeWidgetItem& item, int id);
     QTreeWidgetItem* createTreeItem(int id);
     std::pair<int, QWidget*> nodeTab(int id);
-    void fillStyleMenu(QMenu& menu);
+    void fillThemesMenu(QMenu& menu);
     void applyStyleSheetWithFontOverride(const QString& styleSheet);
-    QString fontStyle_;
+    void applyThemeWithFontOverride(const QString& themeName);
     static QString fontToStyleSheet(const QFont& font);
     static int fontPixelSize(const QFont& font);
+
+    
+
+
 public slots:
     void tabTextChanged(int id, const std::string& text);
 };

@@ -6,6 +6,8 @@
 #include <QMessageBox>
 #include <QFontDialog>
 
+const QString themesDir = "Themes";
+
 View::View(ModelInterface* model, ControllerInterface* controller)
     : model_{ model }, controller_{ controller } {
     if (model_)
@@ -24,23 +26,26 @@ void View::setItemId(QTreeWidgetItem& item, int id) {
     item.setData(0, Qt::UserRole, id);
 }
 
-void View::fillStyleMenu(QMenu& menu) {
-    // Default action - reset styles
+void View::fillThemesMenu(QMenu& menu) {
+    // Default action - reset theme
     QAction* a = new QAction("*default");
     connect(a, &QAction::triggered, this, [this]() {
+        settings_.setFontOverride("");
+        settings_.setTheme("");
         applyStyleSheetWithFontOverride("");
     });
     menu.addAction(a);
 
-    QDir styleDir("styles");
-    auto files = styleDir.entryList(QStringList{ "*.qss" });
+    QDir themesDir(themesDir);
+    auto files = themesDir.entryList(QStringList{ "*.qss" });
     for (const auto& file : files) {
         QAction* a = new QAction(file);
 
-        connect(a, &QAction::triggered, this, [styleDir, file, this]() {
-            QFile f(styleDir.dirName() + "/" + file);
+        connect(a, &QAction::triggered, this, [themesDir, file, this]() {
+            QFile f(themesDir.dirName() + "/" + file);
             if (f.exists() && f.open(QIODevice::Text | QIODevice::ReadOnly)) {
-                this->fontStyle_ = ""; // clear global font if we load style
+                settings_.setFontOverride(""); // clear global font if we load theme
+                settings_.setTheme(QFileInfo(f.fileName()).fileName());
                 applyStyleSheetWithFontOverride(QString(f.readAll()));
             }
         });
@@ -48,7 +53,12 @@ void View::fillStyleMenu(QMenu& menu) {
     }
 }
 void View::applyStyleSheetWithFontOverride(const QString& styleSheet) {
-    QApplication::activeWindow()->setStyleSheet(styleSheet + this->fontStyle_);
+    QApplication::activeWindow()->setStyleSheet(styleSheet + this->settings_.fontOverride());
+}
+void View::applyThemeWithFontOverride(const QString& themeName) {
+    QFile f(themesDir + "/" + themeName);
+    if (f.exists() && f.open(QIODevice::Text | QIODevice::ReadOnly))
+        applyStyleSheetWithFontOverride(QString(f.readAll()));
 }
 void View::setupView(Ui::ProjPadClass* const ui) {
     ui->splitter->setSizes({ 200, 999 });
@@ -58,8 +68,8 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     save_ = ui->actionSave;
 
     save_->setEnabled(false);
-    fillStyleMenu(*ui->menuStyle);
-    
+    fillThemesMenu(*ui->menuTheme);
+
     connect(tree_, &QTreeWidget::itemActivated, this, [this](QTreeWidgetItem* item) {
         controller_->treeSelectionChanged(itemId(*item));
     });
@@ -116,10 +126,14 @@ void View::setupView(Ui::ProjPadClass* const ui) {
         QFontDialog fontDialog(curFont);
         
         if (fontDialog.exec() == QDialog::Accepted) {
-            fontStyle_ = fontToStyleSheet(fontDialog.selectedFont());
+            settings_.setFontOverride(fontToStyleSheet(fontDialog.selectedFont()));
             applyStyleSheetWithFontOverride(QApplication::activeWindow()->styleSheet());
         }
     });
+
+    
+    applyThemeWithFontOverride(settings_.theme());
+
 }
 int View::fontPixelSize(const QFont& font) {
     int pixelSize = font.pixelSize();

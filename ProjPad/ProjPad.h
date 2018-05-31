@@ -15,4 +15,5 @@ public:
 private:
     Ui::ProjPadClass ui;
     Controller controller_;
+    void paintEvent(QPaintEvent* event) override;
 };
