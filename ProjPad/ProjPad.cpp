@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "ProjPad.h"
+#include <mutex>
+std::once_flag flagSetupView;
 
 ProjPad::ProjPad(QWidget *parent)
     : QMainWindow(parent) {
@@ -8,11 +10,8 @@ ProjPad::ProjPad(QWidget *parent)
     
 }
 
-#include <mutex>
-std::once_flag flag1;
 void ProjPad::paintEvent(QPaintEvent* event) {
-    std::call_once(flag1, [this]() {
+    std::call_once(flagSetupView, [this]() {
         controller_.setupView(&ui);
     });
-
 }
