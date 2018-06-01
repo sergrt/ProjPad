@@ -38,7 +38,6 @@ std::unique_ptr<Node> Project::loadNode(const pugi::xml_node& xmlNode) {
     return std::move(node);
 }
 void Project::load(const std::string& fileName, const std::optional<std::string>& password) {
-    rootNodes_.clear();
     pugi::xml_document doc;
 
     if (password) {
@@ -48,14 +47,22 @@ void Project::load(const std::string& fileName, const std::optional<std::string>
         std::vector<unsigned char> data(fsize);
         f.read((char*)data.data(), fsize);
         data = Cryptopp::decrypt(data, *password_);
-        doc.load_buffer(data.data(), data.size());
+        auto parseResult = doc.load_buffer(data.data(), data.size());
+        if (!parseResult)
+            notifyLoadFailed();
     } else {
-        /*auto parseResult = */doc.load_file(fileName.c_str());
+        auto parseResult = doc.load_file(fileName.c_str());
+        if (!parseResult) {
+            notifyPasswordNeeded(fileName);
+            return;
+        }
     }
     
     auto contentNode = doc.child(xml::content);
     if (!contentNode)
         throw std::runtime_error("Error loading file");
+
+    rootNodes_.clear();
 
     for (const auto& c : contentNode.children())
         rootNodes_.emplace_back(loadNode(c));
@@ -347,4 +354,12 @@ void Project::closeNode(int id) {
         std::find(std::begin(openedNodes_), std::end(openedNodes_), findById(id))
     );
     notifyNodeClosed(id);
+}
+void Project::notifyLoadFailed() {
+    for (auto* const observer : views_)
+        observer->loadFailed();
+}
+void Project::notifyPasswordNeeded(const std::string& fileName) {
+    for (auto* const observer : views_)
+        observer->filePasswordNeeded(fileName);
 }

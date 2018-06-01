@@ -24,6 +24,8 @@ public:
     void enableSave() override;
     void nodeAdded(int id, std::optional<int> parentId) override;
     void nodeRenamed(int id) override;
+    void loadFailed() override;
+    void filePasswordNeeded(const std::string& fileName) override;
     
     //void updateText(int id) override;
 

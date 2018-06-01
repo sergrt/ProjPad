@@ -58,6 +58,8 @@ private:
     void notifyItemDeleted(int id);
     void notifyNodeAdded(int id, std::optional<int> parentId);
     void notifyNodeRenamed(int id);
+    void notifyLoadFailed();
+    void notifyPasswordNeeded(const std::string& fileName);
 
     Node* findById(int id) const;
     Node* findById(Node& node, int id) const;

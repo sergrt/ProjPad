@@ -6,13 +6,12 @@ PasswordDialog::PasswordDialog(QWidget *parent)
     : QDialog(parent) {
     ui.setupUi(this);
     connect(ui.open, &QPushButton::clicked, this, [this]() {
-        this->close();
+        accept();
     });
 }
 
 PasswordDialog::~PasswordDialog() {
 }
-
 std::string PasswordDialog::password() const {
     return ui.password->text().toStdString();
 }

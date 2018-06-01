@@ -1,6 +1,6 @@
 #pragma once
 #include <optional>
-class Project;
+#include <string>
 
 class Observer {
 public:
@@ -11,4 +11,6 @@ public:
     virtual void nodeDeleted(int id) = 0;
     virtual void nodeAdded(int id, std::optional<int> parentId) = 0;
     virtual void nodeRenamed(int id) = 0;
+    virtual void loadFailed() = 0;
+    virtual void filePasswordNeeded(const std::string& fileName) = 0;
 };

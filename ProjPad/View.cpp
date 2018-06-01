@@ -77,18 +77,12 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     });
     ////connect(ui.textEdit, &QTextEdit::textChanged, &controller_, &Controller::onTextChanged);
     connect(ui->actionOpen, &QAction::triggered, this, [this]() {
-        auto fileName = QFileDialog::getOpenFileName(QApplication::activeWindow(), "Open document", QString(), QString("*.prp;*.pre"));
-        if (!fileName.isEmpty()) {
-            if (fileName.right(4) == ".prp") {
-                controller_->load(fileName.toStdString(), std::nullopt);
-            } else {
-                PasswordDialog d;
-                d.exec();
-                controller_->load(fileName.toStdString(), std::make_optional<std::string>(d.password()));
-            }
-        }
+        auto fileName = QFileDialog::getOpenFileName(QApplication::activeWindow(), "Open document", QString(), QString("*.prp"));
+        // try to load without password
+        // if loading failed - model will notify it needs password, and another function, with password, should be called;
+        if (!fileName.isEmpty())
+            controller_->load(fileName.toStdString(), std::nullopt);
     });
-
     connect(ui->actionSaveAs, &QAction::triggered, this, [this]() {
         auto password = model_->password();
         auto fileName = QFileDialog::getSaveFileName(QApplication::activeWindow(), "Save document as", QString(),
@@ -315,3 +309,13 @@ void View::nodeRenamed(int id) {
             tabWidget_->setTabText(w.first, model_->nodeName(id).c_str());
     }
 }
+void View::loadFailed() {
+    QMessageBox::critical(this, "Load failed",
+        "File content invalid. Loading aborted");
+}
+
+void View::filePasswordNeeded(const std::string& fileName) {
+    PasswordDialog d;
+    if (d.exec() == QDialog::Accepted)
+        controller_->load(fileName, std::make_optional<std::string>(d.password()));
+};
