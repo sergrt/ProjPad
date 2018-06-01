@@ -32,12 +32,13 @@ void Controller::onTextChanged() {
     model_->updateText(curDocId_, text);
 }
 */
-void Controller::load(const std::string& fileName) const {
-    model_->load(fileName);
+void Controller::load(const std::string& fileName, const std::optional<std::string>& password) const {
+    model_->load(fileName, password);
     view_->enableSave();
 }
 void Controller::save(const std::string& fileName) const {
     model_->save(fileName);
+    view_->enableSave();
 }
 void Controller::save() const {
     model_->save();
@@ -60,4 +61,7 @@ void Controller::renameNode(int itemId, const std::string& name) const {
 }
 void Controller::closeNode(int itemId) const {
     model_->closeNode(itemId);
+}
+void Controller::setPassword(const std::string& password) const {
+    model_->setPassword(password);
 }

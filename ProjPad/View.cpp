@@ -5,6 +5,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QFontDialog>
+#include "SetPasswordDialog.h"
+#include "PasswordDialog.h"
 
 const QString themesDir = "Themes";
 
@@ -75,13 +77,22 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     });
     ////connect(ui.textEdit, &QTextEdit::textChanged, &controller_, &Controller::onTextChanged);
     connect(ui->actionOpen, &QAction::triggered, this, [this]() {
-        auto fileName = QFileDialog::getOpenFileName(QApplication::activeWindow(), "Open document", QString(), QString("*.xml"));
-        if (!fileName.isEmpty())
-            controller_->load(fileName.toStdString());
+        auto fileName = QFileDialog::getOpenFileName(QApplication::activeWindow(), "Open document", QString(), QString("*.prp;*.pre"));
+        if (!fileName.isEmpty()) {
+            if (fileName.right(4) == ".prp") {
+                controller_->load(fileName.toStdString(), std::nullopt);
+            } else {
+                PasswordDialog d;
+                d.exec();
+                controller_->load(fileName.toStdString(), std::make_optional<std::string>(d.password()));
+            }
+        }
     });
 
     connect(ui->actionSaveAs, &QAction::triggered, this, [this]() {
-        auto fileName = QFileDialog::getSaveFileName(QApplication::activeWindow(), "Save document as", QString(), QString("*.xml"));
+        auto password = model_->password();
+        auto fileName = QFileDialog::getSaveFileName(QApplication::activeWindow(), "Save document as", QString(),
+            password ? QString("*.pre") : QString("*.prp"));
         if (!fileName.isEmpty())
             controller_->save(fileName.toStdString());
     });
@@ -130,7 +141,13 @@ void View::setupView(Ui::ProjPadClass* const ui) {
             applyStyleSheetWithFontOverride(QApplication::activeWindow()->styleSheet());
         }
     });
+    connect(ui->actionSetChangePassword, &QAction::triggered, this, [this]() {
+        std::optional<std::string> currentPassword = model_->password();
+        SetPasswordDialog d(currentPassword ? *currentPassword : "");
 
+        if (d.exec() == QDialog::Accepted)
+            controller_->setPassword(d.selectedPassword());
+    });
     
     applyThemeWithFontOverride(settings_.theme());
 

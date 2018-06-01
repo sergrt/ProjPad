@@ -15,13 +15,14 @@ public:
 
     //void onTreeItemActivated(QTreeWidgetItem* item, int col);
     //void onTextChanged();
-    void load(const std::string& fileName) const override;
+    void load(const std::string& fileName, const std::optional<std::string>& password) const override;
     void save(const std::string& fileName) const override;
     void save() const override;
     void tabTextChanged(int id, const std::string& text) const override;
     void deleteNode(int itemId) const override;
     void renameNode(int itemId, const std::string& name) const override;
     void closeNode(int itemId) const override;
+    void setPassword(const std::string& password) const override;
 private:
     ModelInterface* model_;
     ViewInterface* view_;

@@ -221,6 +221,7 @@ QTreeWidget::branch:closed:has-children {
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
+    <addaction name="actionSetChangePassword"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -256,6 +257,7 @@ QTreeWidget::branch:closed:has-children {
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="actionSaveAs"/>
+   <addaction name="actionSetChangePassword"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen">
@@ -288,6 +290,16 @@ QTreeWidget::branch:closed:has-children {
   <action name="actionGlobalFont">
    <property name="text">
     <string>Override font (globally)...</string>
+   </property>
+  </action>
+  <action name="actionSetChangePassword">
+   <property name="icon">
+    <iconset>
+     <normalon>:/ProjPad/Resources/icons8-lock-30.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Set/change password...</string>
    </property>
   </action>
  </widget>

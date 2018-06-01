@@ -5,14 +5,16 @@ class Observer;
 class ModelInterface {
 public:
     virtual ~ModelInterface() {}
-    virtual void load(const std::string& fileName) = 0;
+    virtual void load(const std::string& fileName, const std::optional<std::string>& password) = 0;
     virtual void save(const std::string& fileName) = 0;
     virtual void save() = 0;
+    virtual std::optional<std::string> password() const = 0;
 
     virtual bool textNodeOpened(int id) const = 0;
     virtual void openTextNode(int id) = 0;
     virtual void focusTextNode(int id) = 0;
     virtual void closeNode(int id) = 0;
+    virtual void setPassword(const std::string& password) = 0;
 
     virtual std::string nodeName(int id) const = 0;
     virtual std::string nodeText(int id) const = 0;

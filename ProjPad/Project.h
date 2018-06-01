@@ -38,9 +38,11 @@ public:
     void removeObserver(Observer* view) override;
 //private:
     std::vector<std::unique_ptr<Node>> rootNodes_;
-    void load(const std::string& fileName) override;
+    void load(const std::string& fileName, const std::optional<std::string>& password) override;
     void save(const std::string& fileName) override;
     void save() override;
+    std::optional<std::string> password() const override;
+    void setPassword(const std::string& password) override;
 
     static void saveNode(const Node& node, pugi::xml_node& parentXmlNode);
     static std::unique_ptr<Node> loadNode(const pugi::xml_node& xmlNode);
@@ -66,4 +68,5 @@ private:
     void addNode(Node::Type type, const std::string& name, std::optional<int> parentId);
 
     std::optional<std::string> fileName_;
+    std::optional<std::string> password_;
 };
