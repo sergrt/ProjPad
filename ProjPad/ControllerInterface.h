@@ -8,7 +8,7 @@ public:
     virtual ~ControllerInterface() {}
     virtual void setupView(Ui::ProjPadClass* const) const = 0;
     virtual void treeSelectionChanged(int itemId) const = 0;
-    virtual void load(const std::string& fileName) const = 0;
+    virtual void load(const std::string& fileName, const std::optional<std::string>& password) const = 0;
     virtual void save(const std::string& fileName) const = 0;
     virtual void save() const = 0;
     virtual void tabTextChanged(int id, const std::string& text) const = 0;
@@ -17,4 +17,5 @@ public:
     virtual void deleteNode(int itemId) const = 0;
     virtual void renameNode(int itemId, const std::string& name) const = 0;
     virtual void closeNode(int itemId) const = 0;
+    virtual void setPassword(const std::string& password) const = 0;
 };

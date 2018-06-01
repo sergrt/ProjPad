@@ -5,6 +5,8 @@
 #include "Observer.h"
 #include "pugixml.hpp"
 #include <algorithm>
+#include "Utilities.h"
+#include <fstream>
 
 namespace xml {
     char content[] = "Content";
@@ -35,14 +37,32 @@ std::unique_ptr<Node> Project::loadNode(const pugi::xml_node& xmlNode) {
 
     return std::move(node);
 }
-void Project::load(const std::string& fileName) {
-    rootNodes_.clear();
-
+void Project::load(const std::string& fileName, const std::optional<std::string>& password) {
     pugi::xml_document doc;
-    /*auto parseResult = */doc.load_file(fileName.c_str());
+
+    if (password) {
+        password_ = password;
+        std::ifstream f(fileName, std::ios::binary);
+        const int fsize = Utilities::fileSize(fileName);
+        std::vector<unsigned char> data(fsize);
+        f.read((char*)data.data(), fsize);
+        data = Cryptopp::decrypt(data, *password_);
+        auto parseResult = doc.load_buffer(data.data(), data.size());
+        if (!parseResult)
+            notifyLoadFailed();
+    } else {
+        auto parseResult = doc.load_file(fileName.c_str());
+        if (!parseResult) {
+            notifyPasswordNeeded(fileName);
+            return;
+        }
+    }
+    
     auto contentNode = doc.child(xml::content);
     if (!contentNode)
         throw std::runtime_error("Error loading file");
+
+    rootNodes_.clear();
 
     for (const auto& c : contentNode.children())
         rootNodes_.emplace_back(loadNode(c));
@@ -236,20 +256,46 @@ void Project::save(const std::string& fileName) {
     for (const auto& n : rootNodes_)
         saveNode(*n, node);
 
-    if (!doc.save_file(fileName.c_str(), "    "))
-        throw std::runtime_error("Error saving file");
+    if (!password_) {
+        if (!doc.save_file(fileName.c_str(), "    "))
+            throw std::runtime_error("Error saving file");
+    } else {
+
+        struct xml_string_writer : pugi::xml_writer {
+            std::string result;
+            virtual void write(const void* data, size_t size) {
+                result += std::string(static_cast<const char*>(data), size);
+            }
+        };
+        xml_string_writer writer;
+        doc.save(writer);
+        auto x = writer.result;
+
+
+        std::ofstream f(fileName.c_str(), std::ios::binary);
+        auto encrypted = Cryptopp::encrypt(x, *password_);
+        for (const auto c : encrypted)
+            f << c;
+    }
 
     // Update internal file name
     fileName_ = fileName;
 }
-
+void Project::setPassword(const std::string& password) {
+    if (password.empty())
+        password_ = std::nullopt;
+    else
+        password_ = password;
+}
 void Project::save() {
     if (!fileName_)
         throw std::runtime_error("Attempting to save previously unsaved document");
 
     save(*fileName_);
 }
-
+std::optional<std::string> Project::password() const {
+    return password_;
+}
 void Project::closeWithChildrenNodes(Node* node) {
     for (const auto& c : node->children_)
         closeWithChildrenNodes(c.get());
@@ -308,4 +354,12 @@ void Project::closeNode(int id) {
         std::find(std::begin(openedNodes_), std::end(openedNodes_), findById(id))
     );
     notifyNodeClosed(id);
+}
+void Project::notifyLoadFailed() {
+    for (auto* const observer : views_)
+        observer->loadFailed();
+}
+void Project::notifyPasswordNeeded(const std::string& fileName) {
+    for (auto* const observer : views_)
+        observer->filePasswordNeeded(fileName);
 }
