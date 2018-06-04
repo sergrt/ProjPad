@@ -15,6 +15,9 @@ public:
     virtual void focusTextNode(int id) = 0;
     virtual void closeNode(int id) = 0;
     virtual void setPassword(const std::string& password) = 0;
+    virtual void moveNode(int itemId, std::optional<int> parentId) = 0;
+    virtual void moveNodeAbove(int itemId, int parentId) = 0;
+    virtual void moveNodeBelow(int itemId, int parentId) = 0;
 
     virtual std::string nodeName(int id) const = 0;
     virtual std::string nodeText(int id) const = 0;

@@ -43,6 +43,9 @@ public:
     void save() override;
     std::optional<std::string> password() const override;
     void setPassword(const std::string& password) override;
+    void moveNode(int itemId, std::optional<int> parentId) override;
+    void moveNodeAbove(int itemId, int parentId) override;
+    void moveNodeBelow(int itemId, int parentId) override;
 
     static void saveNode(const Node& node, pugi::xml_node& parentXmlNode);
     static std::unique_ptr<Node> loadNode(const pugi::xml_node& xmlNode);
@@ -66,6 +69,8 @@ private:
 
     Node* findParentForId(int id) const;
     Node* findParentForId(Node& node, int id) const;
+    void internalDelete(int id, bool release); //release - call release() on unique_ptr
+    bool parentInRootNodes(int parentId) const;
 
     void addNode(Node::Type type, const std::string& name, std::optional<int> parentId);
 

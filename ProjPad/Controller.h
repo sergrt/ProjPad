@@ -23,6 +23,9 @@ public:
     void renameNode(int itemId, const std::string& name) const override;
     void closeNode(int itemId) const override;
     void setPassword(const std::string& password) const override;
+    void moveNode(int itemId, std::optional<int> parentId) const override;
+    void moveNodeAbove(int itemId, int parentId) const override;
+    void moveNodeBelow(int itemId, int parentId) const override;
 private:
     ModelInterface* model_;
     ViewInterface* view_;

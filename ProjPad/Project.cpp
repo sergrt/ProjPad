@@ -314,26 +314,37 @@ void Project::deleteNode(int id) {
     closeWithChildrenNodes(item);
     
     // delete from parent
-    auto parentNode = findParentForId(item->id());
-    if (parentNode) {
-        parentNode->children_.erase(
-            std::find_if(std::begin(parentNode->children_),
-                std::end(parentNode->children_),
-                [item](const auto& i) {
-                    return i.get() == item;
-                }));
-        
-    }
-    
-    const auto rootPos = std::find_if(std::begin(rootNodes_), std::end(rootNodes_), [item](const auto& i) {
-        return i.get() == item;
-    });
-    if (rootPos != rootNodes_.end())
-        rootNodes_.erase(rootPos);
-        
+    internalDelete(id, false);
     notifyItemDeleted(id);
 }
+void Project::internalDelete(int id, bool release) {
+    auto parentNode = findParentForId(id);
+    if (parentNode) {
 
+        auto pos = std::find_if(std::begin(parentNode->children_), std::end(parentNode->children_), [id](const auto& i) {
+            return i.get()->id() == id;
+        });
+        
+        if (pos == std::end(parentNode->children_))
+            return;
+
+        if (release)
+            pos->release();
+
+        parentNode->children_.erase(pos);
+    } else {
+        // delete from rootNodes_
+        const auto rootPos = std::find_if(std::begin(rootNodes_), std::end(rootNodes_), [id](const auto& i) {
+            return i->id() == id;
+        });
+        if (rootPos != rootNodes_.end()) {
+            if (release)
+                rootPos->release();
+
+            rootNodes_.erase(rootPos);
+        }
+    }
+}
 void Project::notifyItemDeleted(int id) {
     for (auto* const observer : views_)
         observer->nodeDeleted(id);
@@ -362,4 +373,50 @@ void Project::notifyLoadFailed() {
 void Project::notifyPasswordNeeded(const std::string& fileName) {
     for (auto* const observer : views_)
         observer->filePasswordNeeded(fileName);
+}
+void Project::moveNode(int itemId, std::optional<int> parentId) {
+    std::unique_ptr<Node> node(findById(itemId));
+    // delete node from parent
+    internalDelete(itemId, true);
+    
+    if (parentId)
+        findById(*parentId)->addChild(std::move(node));
+    else
+        rootNodes_.emplace_back(std::move(node));
+}
+bool Project::parentInRootNodes(int parentId) const {
+    return std::any_of(std::cbegin(rootNodes_), std::cend(rootNodes_), [parentId](const auto& i) {
+        return i->id() == parentId;
+    });
+}
+void Project::moveNodeAbove(int itemId, int parentId) {
+    std::unique_ptr<Node> node(findById(itemId));
+    // delete node from parent
+    internalDelete(itemId, true);
+    
+    // if parentId not in rootNodes_, use node functions
+    if (!parentInRootNodes(parentId)) {
+        findParentForId(parentId)->insertChildBefore(std::move(node), parentId);
+    } else {
+        const auto pos = std::find_if(std::cbegin(rootNodes_), std::cend(rootNodes_), [parentId](const auto& i) {
+            return i->id() == parentId;
+        });
+        rootNodes_.insert(pos, std::move(node));
+    }
+}
+void Project::moveNodeBelow(int itemId, int parentId) {
+    std::unique_ptr<Node> node(findById(itemId));
+    // delete node from parent
+    internalDelete(itemId, true);
+
+    // if parentId not in rootNodes_, use node functions
+    if (!parentInRootNodes(parentId)) {
+        findParentForId(parentId)->insertChildAfter(std::move(node), parentId);
+    } else {
+        auto pos = std::find_if(std::cbegin(rootNodes_), std::cend(rootNodes_), [parentId](const auto& i) {
+            return i->id() == parentId;
+        });
+        ++pos;
+        rootNodes_.insert(pos, std::move(node));
+    }
 }

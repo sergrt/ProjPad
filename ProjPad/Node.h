@@ -18,6 +18,8 @@ public:
     Type type() const;
     std::string name() const;
     void addChild(std::unique_ptr<Node> node);
+    void insertChildBefore(std::unique_ptr<Node> node, int beforeId);
+    void insertChildAfter(std::unique_ptr<Node> node, int afterId);
     virtual std::string text() const = 0;
     virtual void setText(const std::string& text) = 0;
 private:
