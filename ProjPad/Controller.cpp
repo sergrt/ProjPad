@@ -65,3 +65,12 @@ void Controller::closeNode(int itemId) const {
 void Controller::setPassword(const std::string& password) const {
     model_->setPassword(password);
 }
+void Controller::moveNode(int itemId, std::optional<int> parentId) const {
+    model_->moveNode(itemId, parentId);
+}
+void Controller::moveNodeAbove(int itemId, int parentId) const {
+    model_->moveNodeAbove(itemId, parentId);
+}
+void Controller::moveNodeBelow(int itemId, int parentId) const {
+    model_->moveNodeBelow(itemId, parentId);
+}

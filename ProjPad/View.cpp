@@ -142,6 +142,15 @@ void View::setupView(Ui::ProjPadClass* const ui) {
         if (d.exec() == QDialog::Accepted)
             controller_->setPassword(d.selectedPassword());
     });
+    connect(tree_, &DeselectableTreeWidget::itemDroppedOnItem, this, [this](QTreeWidgetItem* dropped, QTreeWidgetItem* parent) {
+        controller_->moveNode(itemId(*dropped), parent ? std::make_optional(itemId(*parent)) : std::nullopt);
+    });
+    connect(tree_, &DeselectableTreeWidget::itemDroppedAbove, this, [this](QTreeWidgetItem* dropped, QTreeWidgetItem* parent) {
+        controller_->moveNodeAbove(itemId(*dropped), itemId(*parent));
+    });
+    connect(tree_, &DeselectableTreeWidget::itemDroppedBelow, this, [this](QTreeWidgetItem* dropped, QTreeWidgetItem* parent) {
+        controller_->moveNodeBelow(itemId(*dropped), itemId(*parent));
+    });
     
     applyThemeWithFontOverride(settings_.theme());
 

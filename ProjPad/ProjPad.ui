@@ -175,6 +175,9 @@ QTreeWidget::branch:closed:has-children {
           <property name="editTriggers">
            <set>QAbstractItemView::EditKeyPressed</set>
           </property>
+          <property name="dragDropMode">
+           <enum>QAbstractItemView::InternalMove</enum>
+          </property>
           <property name="selectionMode">
            <enum>QAbstractItemView::SingleSelection</enum>
           </property>

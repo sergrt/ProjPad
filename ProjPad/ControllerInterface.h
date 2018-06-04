@@ -18,4 +18,7 @@ public:
     virtual void renameNode(int itemId, const std::string& name) const = 0;
     virtual void closeNode(int itemId) const = 0;
     virtual void setPassword(const std::string& password) const = 0;
+    virtual void moveNode(int itemId, std::optional<int> parentId) const = 0;
+    virtual void moveNodeAbove(int itemId, int parentId) const = 0;
+    virtual void moveNodeBelow(int itemId, int parentId) const = 0;
 };

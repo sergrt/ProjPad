@@ -117,6 +117,12 @@
     <ClCompile Include="PasswordDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_DeselectableTreeWidget.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_DeselectableTreeWidget.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -151,9 +157,6 @@
     </ClInclude>
     <ClInclude Include="ModelInterface.h">
       <Filter>Model\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DeselectableTreeWidget.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Settings.h">
       <Filter>Header Files</Filter>
@@ -198,6 +201,9 @@
     </CustomBuild>
     <CustomBuild Include="PasswordDialog.ui">
       <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="DeselectableTreeWidget.h">
+      <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

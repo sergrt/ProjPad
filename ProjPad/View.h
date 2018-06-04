@@ -1,10 +1,10 @@
 #pragma once
 #include "Project.h"
 #include "Observer.h"
-#include <QTreeWidget>
 #include "ControllerInterface.h"
 #include "ViewInterface.h"
 #include "Settings.h"
+#include "DeselectableTreeWidget.h"
 
 
 class View : public QWidget, public ViewInterface, public Observer {
@@ -33,7 +33,7 @@ private:
     ModelInterface* model_;
     ControllerInterface* controller_;
 
-    QTreeWidget* tree_;
+    DeselectableTreeWidget* tree_;
     QTabWidget* tabWidget_;
     QAction* save_;
 

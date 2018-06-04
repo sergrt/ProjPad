@@ -4,6 +4,8 @@
 #include "QDateTime"
 
 class DeselectableTreeWidget : public QTreeWidget {
+    Q_OBJECT
+
 public:
     DeselectableTreeWidget(QWidget *parent) : QTreeWidget(parent) {}
     virtual ~DeselectableTreeWidget() {}
@@ -38,4 +40,32 @@ private:
     }
     QModelIndex lastPressedItem_;
     QDateTime lastPressedTime_;
+
+    QTreeWidgetItem* dragItem_ = nullptr;
+    void startDrag(Qt::DropActions supportedActions) override {
+        auto items = selectedItems();
+        if (!items.empty())
+            dragItem_ = items[0];
+        
+        QTreeWidget::startDrag(supportedActions);
+    }
+
+    void dropEvent(QDropEvent* event) override {
+        QTreeWidgetItem* parent = itemAt(event->pos());
+
+        const DropIndicatorPosition dropIndicator = dropIndicatorPosition();
+        if (dropIndicator == DropIndicatorPosition::AboveItem)
+            emit itemDroppedAbove(dragItem_, parent);
+        else if (dropIndicator == DropIndicatorPosition::BelowItem)
+            emit itemDroppedBelow(dragItem_, parent);
+        else  if (dropIndicator == DropIndicatorPosition::OnItem)
+            emit itemDroppedOnItem(dragItem_, parent);
+        
+        QTreeWidget::dropEvent(event);
+        dragItem_ = nullptr;
+    }
+signals:
+    void itemDroppedOnItem(QTreeWidgetItem* dropped, QTreeWidgetItem* parent);
+    void itemDroppedAbove(QTreeWidgetItem* dropped, QTreeWidgetItem* parent);
+    void itemDroppedBelow(QTreeWidgetItem* dropped, QTreeWidgetItem* parent);
 };
