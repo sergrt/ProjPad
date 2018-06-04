@@ -17,7 +17,7 @@ private:
         // Edit item if two clicks detected on the same item within predefined time interval
         if (item == lastPressedItem_) {
             const auto dt = QDateTime::currentDateTime();
-            static const int editTimeLimitFrom = 500;
+            static const int editTimeLimitFrom = 1000;
             static const int editTimeLimitTo = 3000;
 
             if (lastPressedTime_.msecsTo(dt) >= editTimeLimitFrom && lastPressedTime_.msecsTo(dt) <= editTimeLimitTo)
@@ -37,6 +37,10 @@ private:
             const QModelIndex index;
             selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
         }
+    }
+    void mouseDoubleClickEvent(QMouseEvent* event) override {
+        emit doubleClicked(itemAt(event->pos()));
+        QTreeWidget::mouseDoubleClickEvent(event);
     }
     QModelIndex lastPressedItem_;
     QDateTime lastPressedTime_;
@@ -68,4 +72,6 @@ signals:
     void itemDroppedOnItem(QTreeWidgetItem* dropped, QTreeWidgetItem* parent);
     void itemDroppedAbove(QTreeWidgetItem* dropped, QTreeWidgetItem* parent);
     void itemDroppedBelow(QTreeWidgetItem* dropped, QTreeWidgetItem* parent);
+
+    void doubleClicked(QTreeWidgetItem* item);
 };
