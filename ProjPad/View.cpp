@@ -151,6 +151,11 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     connect(tree_, &DeselectableTreeWidget::itemDroppedBelow, this, [this](QTreeWidgetItem* dropped, QTreeWidgetItem* parent) {
         controller_->moveNodeBelow(itemId(*dropped), itemId(*parent));
     });
+    connect(tree_, &DeselectableTreeWidget::doubleClicked, this, [this](QTreeWidgetItem* item) {
+        if (model_->nodeType(itemId(*item)) == Node::Type::folder) {
+            item->setExpanded(!item->isExpanded());
+        }
+    });
     
     applyThemeWithFontOverride(settings_.theme());
 
