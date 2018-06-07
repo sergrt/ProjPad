@@ -17,10 +17,86 @@ View::View(ModelInterface* model, ControllerInterface* controller)
 }
 
 View::~View() {
+    saveSession();
     if (model_)
         model_->removeObserver(this);
 }
+void View::saveSession() {
+    // window position
+    // pos, size and maximized flag already in actual state
+    // because these parameters updated by main window as soon as they changed
 
+    // opened file
+    auto fileName = model_->fileName();
+    session_.setFileName(fileName ? *fileName : "");
+    
+    // open tree nodes
+    std::vector<int> expandedNodes;
+    for (int i = 0; i < tree_->topLevelItemCount(); ++i)
+        collectExpandedNodes(expandedNodes, tree_->topLevelItem(i));
+    session_.setExpandedNodes(expandedNodes);
+
+    // selected node
+    const auto selectedItems = tree_->selectedItems();
+    session_.setSelectedNode(!selectedItems.empty() ? itemId(*selectedItems[0]) : 0);
+
+    // tree scroll position (v and h)
+    session_.setTreeVScrollPos(tree_->verticalScrollBar()->value());
+    session_.setTreeHScrollPos(tree_->horizontalScrollBar()->value());
+
+    // opened tabs
+    std::vector<Session::TabSession> openedTabs = collectOpenedTabs();
+    session_.setOpenedTabs(openedTabs);
+        
+    // active tab
+    session_.setActiveTab(static_cast<EditContainer*>(tabWidget_->widget(tabWidget_->currentIndex()))->id());
+}
+void View::restoreSession() {
+    // restore window position
+    QApplication::activeWindow()->move(session_.windowPos());
+    QApplication::activeWindow()->resize(session_.windowSize());
+    if (session_.windowMaximized())
+        QApplication::activeWindow()->showMaximized();
+
+    // restore opened file
+    if (!session_.fileName().empty())
+        controller_->load(session_.fileName(), std::nullopt);
+
+    // restore open tree nodes
+    const auto expandedNodes = session_.expandedNodes();
+    for (const auto i : expandedNodes)
+        tree_->setItemExpanded(findTreeNode(i), true);
+    
+    // restore selected node
+    tree_->setItemSelected(findTreeNode(session_.selectedNode()), true);
+
+    // restore tree scroll position (v and h)
+    tree_->verticalScrollBar()->setValue(session_.treeVScrollPos());
+    tree_->horizontalScrollBar()->setValue(session_.treeHScrollPos());
+
+    // restore opened tabs
+    std::vector<Session::TabSession> openedTabs = session_.openedTabs();
+    // open tabs
+    for (const auto& s : openedTabs)
+        controller_->treeSelectionChanged(s.id_);
+
+    // apply tab settiongs
+    for (const auto& s : openedTabs)
+        applyTabSession(s);
+
+    // active tab
+    auto t = nodeTab(session_.activeTab());
+    if (t.second)
+        tabWidget_->setCurrentIndex(t.first);
+}
+void View::updateViewSettings(const std::optional<QPoint>& pos, const std::optional<QSize>& size, const std::optional<bool> maximized) {
+    if (pos)
+        session_.setWindowPos(*pos);
+    if (size)
+        session_.setWindowSize(*size);
+    if (maximized)
+        session_.setWindowMaximized(*maximized);
+}
 int View::itemId(QTreeWidgetItem& item) {
     return item.data(0, Qt::UserRole).toInt();
 }
@@ -158,7 +234,9 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     });
     
     applyThemeWithFontOverride(settings_.theme());
-
+    
+    if (settings_.restoreSession())
+        restoreSession();
 }
 int View::fontPixelSize(const QFont& font) {
     int pixelSize = font.pixelSize();
@@ -333,3 +411,47 @@ void View::filePasswordNeeded(const std::string& fileName) {
     if (d.exec() == QDialog::Accepted)
         controller_->load(fileName, std::make_optional<std::string>(d.password()));
 };
+
+void View::collectExpandedNodes(std::vector<int>& nodes, QTreeWidgetItem* root) const {
+    if (root->isExpanded())
+        nodes.push_back(itemId(*root));
+    
+    for (int i = 0; i < root->childCount(); ++i) {
+        QTreeWidgetItem* n = root->child(i);
+        collectExpandedNodes(nodes, n);
+    }
+}
+std::vector<Session::TabSession> View::collectOpenedTabs() const {
+    std::vector<Session::TabSession> res;
+    for (int i = 0; i < tabWidget_->count(); ++i) {
+        Session::TabSession tabSession;
+        const auto container = static_cast<EditContainer*>(tabWidget_->widget(i));
+        tabSession.id_ = container->id();
+        tabSession.splitterPos_ = container->splitterPos();
+        tabSession.upperCursorPos_ = container->upperCursorPos().get();
+        tabSession.upperVScroll_ = container->upperVScrollPos().get();
+        tabSession.upperHScroll_ = container->upperHScrollPos().get();
+
+        tabSession.lowerCursorPos_ = container->lowerCursorPos().get();
+        tabSession.lowerVScroll_ = container->lowerVScrollPos().get();
+        tabSession.lowerHScroll_ = container->lowerHScrollPos().get();
+
+        res.push_back(std::move(tabSession));
+    }
+    return res;
+}
+void View::applyTabSession(const Session::TabSession& tabSession) {
+    auto p = nodeTab(tabSession.id_);
+    if (!p.second) //tab not found
+        return;
+    const auto container = static_cast<EditContainer*>(tabWidget_->widget(p.first));
+
+    container->setSplitterPos(tabSession.splitterPos_);
+    container->setUpperCursorPos(CursorPos(tabSession.upperCursorPos_));
+    container->setUpperVScrollPos(ScrollPos(tabSession.upperVScroll_));
+    container->setUpperHScrollPos(ScrollPos(tabSession.upperHScroll_));
+
+    container->setLowerCursorPos(CursorPos(tabSession.lowerCursorPos_));
+    container->setLowerVScrollPos(ScrollPos(tabSession.lowerVScroll_));
+    container->setLowerHScrollPos(ScrollPos(tabSession.lowerHScroll_));
+}

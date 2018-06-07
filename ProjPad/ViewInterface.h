@@ -1,4 +1,6 @@
 #pragma once
+#include <QPoint>
+#include <QSize>
 class QTabWidget;
 class QTreeWidget;
 
@@ -10,4 +12,5 @@ public:
 
     virtual void enableSave() = 0;
     //virtual void disableSave() = 0;
+    virtual void updateViewSettings(const std::optional<QPoint>& pos, const std::optional<QSize>& size, const std::optional<bool> maximized) = 0;
 };

@@ -420,3 +420,6 @@ void Project::moveNodeBelow(int itemId, int parentId) {
         rootNodes_.insert(pos, std::move(node));
     }
 }
+std::optional<std::string> Project::fileName() const {
+    return fileName_;
+}

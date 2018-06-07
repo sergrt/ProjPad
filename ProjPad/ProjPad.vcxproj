@@ -123,6 +123,7 @@
     <ClCompile Include="NodeFactory.cpp" />
     <ClCompile Include="Observer.cpp" />
     <ClCompile Include="PasswordDialog.cpp" />
+    <ClCompile Include="Session.cpp" />
     <ClCompile Include="SetPasswordDialog.cpp" />
     <ClCompile Include="Project.cpp" />
     <ClCompile Include="Node.cpp" />
@@ -172,6 +173,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" "-fstdafx.h" "-f../../%(Filename)%(Extension)"  -DUNICODE -D_UNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I.\..\3rdparty\pugixml\src" "-I.\..\3rdparty\cryptopp"</Command>
     </CustomBuild>
+    <ClInclude Include="Session.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="ViewInterface.h" />

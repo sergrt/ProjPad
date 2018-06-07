@@ -5,6 +5,7 @@
 #include "ViewInterface.h"
 #include "Settings.h"
 #include "DeselectableTreeWidget.h"
+#include "Session.h"
 
 
 class View : public QWidget, public ViewInterface, public Observer {
@@ -38,6 +39,7 @@ private:
     QAction* save_;
 
     Settings settings_;
+    Session session_;
 
     void fillTree(const Node* node, QTreeWidgetItem* item);
     static void setIcon(Node::Type type, QTreeWidgetItem* item);
@@ -52,10 +54,12 @@ private:
     void applyThemeWithFontOverride(const QString& themeName);
     static QString fontToStyleSheet(const QFont& font);
     static int fontPixelSize(const QFont& font);
-
-    
-
-
+    void restoreSession();
+    void saveSession();
+    void updateViewSettings(const std::optional<QPoint>& pos, const std::optional<QSize>& size, const std::optional<bool> maximized) override;
+    void collectExpandedNodes(std::vector<int>& nodes, QTreeWidgetItem* root) const;
+    std::vector<Session::TabSession> collectOpenedTabs() const;
+    void applyTabSession(const Session::TabSession& tabSession);
 public slots:
     void tabTextChanged(int id, const std::string& text);
 };

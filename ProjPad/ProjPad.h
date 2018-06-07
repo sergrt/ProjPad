@@ -16,4 +16,7 @@ private:
     Ui::ProjPadClass ui;
     Controller controller_;
     void paintEvent(QPaintEvent* event) override;
+    void moveEvent(QMoveEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
+    void changeEvent(QEvent* event) override;
 };

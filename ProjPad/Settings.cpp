@@ -9,6 +9,7 @@ namespace SettingsFile {
         const QString sectionName = "Main";
         const QString fontOverride = "FontOverrideQss";
         const QString theme = "Theme";
+        const QString restoreSession = "RestoreSession";
     }
 }
 
@@ -21,6 +22,7 @@ void Settings::load() {
 
     setFontOverride(s.value(SettingsFile::Main::fontOverride).toString());
     setTheme(s.value(SettingsFile::Main::theme).toString());
+    restoreSession_ = s.value(SettingsFile::Main::restoreSession, QVariant::fromValue(false)).toBool();
 }
 Settings::~Settings() {
     save();
@@ -31,6 +33,7 @@ void Settings::save() const {
 
     s.setValue(SettingsFile::Main::fontOverride, fontOverride());
     s.setValue(SettingsFile::Main::theme, theme());
+    s.setValue(SettingsFile::Main::restoreSession, restoreSession());
 }
 
 QString Settings::fontOverride() const {
@@ -38,6 +41,9 @@ QString Settings::fontOverride() const {
 }
 QString Settings::theme() const {
     return theme_;
+}
+bool Settings::restoreSession() const {
+    return restoreSession_;
 }
 void Settings::setFontOverride(const QString& qss) {
     fontOverride_ = qss;

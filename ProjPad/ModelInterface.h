@@ -36,4 +36,6 @@ public:
 
     virtual void addObserver(Observer* view) = 0;
     virtual void removeObserver(Observer* view) = 0;
+
+    virtual std::optional<std::string> fileName() const = 0;
 };

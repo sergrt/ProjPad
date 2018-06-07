@@ -74,3 +74,6 @@ void Controller::moveNodeAbove(int itemId, int parentId) const {
 void Controller::moveNodeBelow(int itemId, int parentId) const {
     model_->moveNodeBelow(itemId, parentId);
 }
+void Controller::updateViewSettings(const std::optional<QPoint>& pos, const std::optional<QSize>& size, const std::optional<bool> maximized) {
+    view_->updateViewSettings(pos, size, maximized);
+}

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "EditContainer.h"
 #include <QGridLayout>
+#include <QScrollBar>
 
 EditContainer::EditContainer(int id)
     : attached_{ false } {
@@ -62,4 +63,51 @@ void EditContainer::restoreScrollPosAndCursorPos(QTextEdit* w, std::pair<CursorP
 }
 int EditContainer::id() const {
     return property("id").toInt();
+}
+QList<int> EditContainer::splitterPos() const {
+    return splitter_->sizes();
+}
+ScrollPos EditContainer::upperVScrollPos() const {
+    return ScrollPos(upperEdit_->verticalScrollBar()->value());
+}
+ScrollPos EditContainer::upperHScrollPos() const {
+    return ScrollPos(upperEdit_->horizontalScrollBar()->value());
+}
+CursorPos EditContainer::upperCursorPos() const {
+    return CursorPos(upperEdit_->textCursor().position());
+}
+ScrollPos EditContainer::lowerVScrollPos() const {
+    return ScrollPos(lowerEdit_->verticalScrollBar()->value());
+}
+ScrollPos EditContainer::lowerHScrollPos() const {
+    return ScrollPos(lowerEdit_->horizontalScrollBar()->value());
+}
+CursorPos EditContainer::lowerCursorPos() const {
+    return CursorPos(lowerEdit_->textCursor().position());
+}
+
+void EditContainer::setSplitterPos(const QList<int>& pos) {
+    splitter_->setSizes(pos);
+}
+void EditContainer::setUpperVScrollPos(ScrollPos pos) {
+    upperEdit_->verticalScrollBar()->setValue(pos.get());
+}
+void EditContainer::setUpperHScrollPos(ScrollPos pos) {
+    upperEdit_->horizontalScrollBar()->setValue(pos.get());
+}
+void EditContainer::setUpperCursorPos(CursorPos pos) {
+    QTextCursor textCursor = upperEdit_->textCursor();
+    textCursor.setPosition(pos.get());
+    upperEdit_->setTextCursor(textCursor);
+}
+void EditContainer::setLowerVScrollPos(ScrollPos pos) {
+    lowerEdit_->verticalScrollBar()->setValue(pos.get());
+}
+void EditContainer::setLowerHScrollPos(ScrollPos pos) {
+    lowerEdit_->horizontalScrollBar()->setValue(pos.get());
+}
+void EditContainer::setLowerCursorPos(CursorPos pos) {
+    QTextCursor textCursor = lowerEdit_->textCursor();
+    textCursor.setPosition(pos.get());
+    lowerEdit_->setTextCursor(textCursor);
 }

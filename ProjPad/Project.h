@@ -54,6 +54,8 @@ public:
     void renameNode(int id, const std::string& name) override;
     void closeWithChildrenNodes(Node* node);
     void closeNode(int id) override;
+
+    std::optional<std::string> fileName() const override;
 private:
     std::vector<Observer*> views_;
     //void notifyTextChanged(int id);

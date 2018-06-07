@@ -2,6 +2,7 @@
 #include "NamedType.h"
 #include <qframe.h>
 #include <QSplitter>
+#include <QTextEdit>
 
 using CursorPos = NamedType<int, struct CursorPosParameter>;
 using ScrollPos = NamedType<int, struct ScrollPosParameter>;
@@ -14,6 +15,21 @@ public:
     ~EditContainer();
     void setText(const std::string& text) const;
     int id() const;
+    QList<int> splitterPos() const;
+    ScrollPos upperVScrollPos() const;
+    ScrollPos upperHScrollPos() const;
+    CursorPos upperCursorPos() const;
+    ScrollPos lowerVScrollPos() const;
+    ScrollPos lowerHScrollPos() const;
+    CursorPos lowerCursorPos() const;
+
+    void setSplitterPos(const QList<int>& pos);
+    void setUpperVScrollPos(ScrollPos pos);
+    void setUpperHScrollPos(ScrollPos pos);
+    void setUpperCursorPos(CursorPos pos);
+    void setLowerVScrollPos(ScrollPos pos);
+    void setLowerHScrollPos(ScrollPos pos);
+    void setLowerCursorPos(CursorPos pos);
 private:
     bool attached_;
     QTextEdit* upperEdit_;

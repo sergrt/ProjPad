@@ -7,6 +7,7 @@ public:
     ~Settings();
     QString fontOverride() const;
     QString theme() const;
+    bool restoreSession() const;
 
     void setFontOverride(const QString& qss);
     void setTheme(const QString& themeName);
@@ -16,4 +17,5 @@ private:
     void load();
     QString fontOverride_;
     QString theme_;
+    bool restoreSession_;
 };
