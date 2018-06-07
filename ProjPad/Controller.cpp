@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Controller.h"
+#include <fstream>
 
 Controller::Controller() {
     model_ = new Project();
@@ -76,4 +77,24 @@ void Controller::moveNodeBelow(int itemId, int parentId) const {
 }
 void Controller::updateViewSettings(const std::optional<QPoint>& pos, const std::optional<QSize>& size, const std::optional<bool> maximized) {
     view_->updateViewSettings(pos, size, maximized);
+}
+void exportNode(std::ofstream& f, const Node& node) {
+    const std::string nodeName = node.name();
+    f << nodeName << "\n";
+    const char fillChar = node.type() == Node::Type::folder ? '=' : '-';
+    for (int i = 0; i < nodeName.size(); ++i)
+        f << fillChar;
+    f << "\n" << "\n";
+
+    if (node.type() == Node::Type::text)
+        f << node.text() << "\n" << "\n";
+
+    for (const auto& c : node.children_) {
+        exportNode(f, *c);
+    }
+}
+void Controller::exportProject(const std::string& fileName) const {
+    std::ofstream f(fileName);
+    for (auto i = model_->begin(); i != model_->end(); ++i)
+        exportNode(f, *i->get());
 }

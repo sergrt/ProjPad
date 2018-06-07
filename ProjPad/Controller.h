@@ -26,6 +26,7 @@ public:
     void moveNode(int itemId, std::optional<int> parentId) const override;
     void moveNodeAbove(int itemId, int parentId) const override;
     void moveNodeBelow(int itemId, int parentId) const override;
+    void exportProject(const std::string& fileName) const override;
 
     // This is used when main window moved/resized/maximized-restored - to keep all session settings in one place (View)
     void updateViewSettings(const std::optional<QPoint>& pos, const std::optional<QSize>& size, const std::optional<bool> maximized);

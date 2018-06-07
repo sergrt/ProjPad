@@ -161,8 +161,7 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     });
     connect(ui->actionSaveAs, &QAction::triggered, this, [this]() {
         auto password = model_->password();
-        auto fileName = QFileDialog::getSaveFileName(QApplication::activeWindow(), "Save document as", QString(),
-            password ? QString("*.pre") : QString("*.prp"));
+        auto fileName = QFileDialog::getSaveFileName(QApplication::activeWindow(), "Save document as", QString(), QString("*.prp"));
         if (!fileName.isEmpty())
             controller_->save(fileName.toStdString());
     });
@@ -231,6 +230,14 @@ void View::setupView(Ui::ProjPadClass* const ui) {
         if (model_->nodeType(itemId(*item)) == Node::Type::folder) {
             item->setExpanded(!item->isExpanded());
         }
+    });
+    connect(ui->actionExportProject, &QAction::triggered, this, [this]() {
+        auto fileName = QFileDialog::getSaveFileName(QApplication::activeWindow(), "Export project", QString(), QString("*.txt"));
+        if (!fileName.isEmpty())
+            controller_->exportProject(fileName.toStdString());
+    });
+    connect(ui->actionExit, &QAction::triggered, this, [this]() {
+        qApp->closeAllWindows();
     });
     
     applyThemeWithFontOverride(settings_.theme());
