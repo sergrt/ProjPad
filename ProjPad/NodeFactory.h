@@ -2,4 +2,4 @@
 #include "Node.h"
 #include <memory>
 
-std::unique_ptr<Node> constructNode(Node::Type t, int id = 0);
+std::unique_ptr<Node> constructNode(Node::Type t, int id);

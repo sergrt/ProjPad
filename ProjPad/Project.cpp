@@ -21,10 +21,14 @@ namespace xml {
 
 Project::Project() {
     initialHash_ = calculateHash();
+    maxNodeId_ = 0;
 }
 
 std::unique_ptr<Node> Project::loadNode(const pugi::xml_node& xmlNode) {
     const auto idAttribute = xmlNode.attribute(xml::attributes::id).as_int();
+    if (idAttribute > maxNodeId_)
+        maxNodeId_ = idAttribute;
+
     auto& node = constructNode(Node::stringToType(xmlNode.attribute(xml::attributes::type).as_string()), idAttribute);
     auto nameAttribute = xmlNode.attribute(xml::attributes::name);
     if (!nameAttribute)
@@ -212,7 +216,7 @@ void Project::addText(const std::string& name, std::optional<int> parentId) {
     addNode(Node::Type::text, name, parentId);
 }
 void Project::addNode(Node::Type type, const std::string& name, std::optional<int> parentId) {
-    auto node = constructNode(type);
+    auto node = constructNode(type, ++maxNodeId_);
     const int id = node->id();
     node->setName(name);
 

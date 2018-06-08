@@ -49,7 +49,7 @@ public:
     void moveNodeAfterAll(int itemId) override;
 
     static void saveNode(const Node& node, pugi::xml_node& parentXmlNode);
-    static std::unique_ptr<Node> loadNode(const pugi::xml_node& xmlNode);
+    std::unique_ptr<Node> loadNode(const pugi::xml_node& xmlNode);
 
     void deleteNode(int id) override;
     void renameNode(int id, const std::string& name) override;
@@ -83,4 +83,5 @@ private:
     std::vector<unsigned char> initialHash_;
     std::vector<unsigned char> calculateHash() const;
     void calculateHash(std::vector<unsigned char>& hash, Node& node) const;
+    int maxNodeId_;
 };
