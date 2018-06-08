@@ -13,5 +13,6 @@
         <file>Resources/icons8-lock-30.png</file>
         <file>Resources/icons8-export-30.png</file>
         <file>Resources/icons8-close-window-40.png</file>
+        <file>Resources/icons8-file-30.png</file>
     </qresource>
 </RCC>

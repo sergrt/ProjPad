@@ -18,6 +18,7 @@ public:
     virtual void moveNode(int itemId, std::optional<int> parentId) = 0;
     virtual void moveNodeAbove(int itemId, int parentId) = 0;
     virtual void moveNodeBelow(int itemId, int parentId) = 0;
+    virtual void moveNodeAfterAll(int itemId) = 0;
 
     virtual std::string nodeName(int id) const = 0;
     virtual std::string nodeText(int id) const = 0;
@@ -38,4 +39,5 @@ public:
     virtual void removeObserver(Observer* view) = 0;
 
     virtual std::optional<std::string> fileName() const = 0;
+    virtual bool hasChanged() const = 0;
 };

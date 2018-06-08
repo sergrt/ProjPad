@@ -38,3 +38,9 @@ void ProjPad::changeEvent(QEvent* event) {
     }
     QMainWindow::changeEvent(event);
 }
+void ProjPad::closeEvent(QCloseEvent* event) {
+    if (!controller_.handleUnsavedProject())
+        event->ignore();
+    else
+        event->accept();
+}

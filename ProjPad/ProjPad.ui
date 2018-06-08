@@ -224,6 +224,8 @@ QTreeWidget::branch:closed:has-children {
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionNewProject"/>
+    <addaction name="separator"/>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
@@ -265,6 +267,8 @@ QTreeWidget::branch:closed:has-children {
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionNewProject"/>
+   <addaction name="separator"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="actionSaveAs"/>
@@ -332,6 +336,15 @@ QTreeWidget::branch:closed:has-children {
    </property>
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionNewProject">
+   <property name="icon">
+    <iconset resource="ProjPad.qrc">
+     <normaloff>:/ProjPad/Resources/icons8-file-30.png</normaloff>:/ProjPad/Resources/icons8-file-30.png</iconset>
+   </property>
+   <property name="text">
+    <string>New project</string>
    </property>
   </action>
  </widget>

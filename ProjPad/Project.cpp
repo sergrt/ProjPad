@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "Utilities.h"
 #include <fstream>
+#include <sha.h>
 
 namespace xml {
     char content[] = "Content";
@@ -14,14 +15,21 @@ namespace xml {
     namespace attributes {
         char type[] = "type";
         char name[] = "name";
+        char id[] = "id";
     }
 }
 
 Project::Project() {
+    initialHash_ = calculateHash();
+    maxNodeId_ = 0;
 }
 
 std::unique_ptr<Node> Project::loadNode(const pugi::xml_node& xmlNode) {
-    auto& node = constructNode(Node::stringToType(xmlNode.attribute(xml::attributes::type).as_string()));
+    const auto idAttribute = xmlNode.attribute(xml::attributes::id).as_int();
+    if (idAttribute > maxNodeId_)
+        maxNodeId_ = idAttribute;
+
+    auto& node = constructNode(Node::stringToType(xmlNode.attribute(xml::attributes::type).as_string()), idAttribute);
     auto nameAttribute = xmlNode.attribute(xml::attributes::name);
     if (!nameAttribute)
         throw std::runtime_error("Error loading file");
@@ -68,6 +76,7 @@ void Project::load(const std::string& fileName, const std::optional<std::string>
         rootNodes_.emplace_back(loadNode(c));
     
     fileName_ = fileName;
+    initialHash_ = calculateHash();
     notifyTreeChanged();
 }
 
@@ -207,7 +216,7 @@ void Project::addText(const std::string& name, std::optional<int> parentId) {
     addNode(Node::Type::text, name, parentId);
 }
 void Project::addNode(Node::Type type, const std::string& name, std::optional<int> parentId) {
-    auto node = constructNode(type);
+    auto node = constructNode(type, ++maxNodeId_);
     const int id = node->id();
     node->setName(name);
 
@@ -234,6 +243,9 @@ void Project::saveNode(const Node& node, pugi::xml_node& parentXmlNode) {
     if (!xmlNode.set_name(xml::document_node))
         throw std::runtime_error("Error saving file");
     
+    if (!xmlNode.append_attribute(xml::attributes::id).set_value(std::to_string(node.id()).c_str()))
+        throw std::runtime_error("Error saving file");
+
     if (!xmlNode.append_attribute(xml::attributes::name).set_value(node.name().c_str()))
         throw std::runtime_error("Error saving file");
     
@@ -280,6 +292,7 @@ void Project::save(const std::string& fileName) {
 
     // Update internal file name
     fileName_ = fileName;
+    initialHash_ = calculateHash();
 }
 void Project::setPassword(const std::string& password) {
     if (password.empty())
@@ -292,6 +305,7 @@ void Project::save() {
         throw std::runtime_error("Attempting to save previously unsaved document");
 
     save(*fileName_);
+    // hash updated in save(const std::string&)
 }
 std::optional<std::string> Project::password() const {
     return password_;
@@ -420,6 +434,58 @@ void Project::moveNodeBelow(int itemId, int parentId) {
         rootNodes_.insert(pos, std::move(node));
     }
 }
+void Project::moveNodeAfterAll(int itemId) {
+    std::unique_ptr<Node> node(findById(itemId));
+    // delete node from parent
+    internalDelete(itemId, true);
+    rootNodes_.insert(std::end(rootNodes_), std::move(node));
+}
+
 std::optional<std::string> Project::fileName() const {
     return fileName_;
+}
+
+std::vector<unsigned char> sha512(const std::vector<unsigned char>& data) {
+    std::vector<unsigned char> hash(64);
+    CryptoPP::SHA512().CalculateDigest(hash.data(), data.data(), data.size());
+    return hash;
+}
+void combineHashes(std::vector<unsigned char>& hash1, const std::vector<unsigned char>& hash2) {
+    for (int i = 0; i < hash1.size(); ++i)
+        hash1[i] ^= hash2[i];
+}
+
+std::vector<unsigned char> Project::calculateHash() const {
+    std::vector<unsigned char> hash(64, 0);
+    
+    std::string rootNodesIdString;
+    for (const auto& r : rootNodes_)
+        rootNodesIdString += std::to_string(r->id()) + "|";
+
+    const auto rootNodesIdHash = sha512(std::vector<unsigned char>(rootNodesIdString.begin(), rootNodesIdString.end()));
+    combineHashes(hash, rootNodesIdHash);
+
+    for (const auto& r : rootNodes_)
+        calculateHash(hash, *r);
+
+    return hash;
+}
+void Project::calculateHash(std::vector<unsigned char>& hash, Node& node) const {
+    std::string data = node.name() + (node.type() == Node::Type::text ? node.text() : std::string());
+    const auto dataHash = sha512(std::vector<unsigned char>(data.begin(), data.end()));
+    combineHashes(hash, dataHash);
+    
+    // also calculate hash for children ids
+    std::string childrenIdString;
+    for (const auto& c : node.children_)
+        childrenIdString += std::to_string(c->id()) + "|";
+    
+    const auto childrenIdHash = sha512(std::vector<unsigned char>(childrenIdString.begin(), childrenIdString.end()));
+    combineHashes(hash, childrenIdHash);
+
+    for (const auto& c : node.children_)
+        calculateHash(hash, *c);
+}
+bool Project::hasChanged() const {
+    return initialHash_ != calculateHash();
 }
