@@ -21,5 +21,7 @@ public:
     virtual void moveNode(int itemId, std::optional<int> parentId) const = 0;
     virtual void moveNodeAbove(int itemId, int parentId) const = 0;
     virtual void moveNodeBelow(int itemId, int parentId) const = 0;
+    virtual void moveNodeAfterAll(int itemId) const = 0;
     virtual void exportProject(const std::string& fileName) const = 0;
+    virtual void createNewProject() = 0;
 };

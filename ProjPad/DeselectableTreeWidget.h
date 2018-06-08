@@ -64,6 +64,8 @@ private:
             emit itemDroppedBelow(dragItem_, parent);
         else  if (dropIndicator == DropIndicatorPosition::OnItem)
             emit itemDroppedOnItem(dragItem_, parent);
+        else  if (dropIndicator == DropIndicatorPosition::OnViewport)
+            emit itemDroppedOnViewport(dragItem_);
         
         QTreeWidget::dropEvent(event);
         dragItem_ = nullptr;
@@ -72,6 +74,7 @@ signals:
     void itemDroppedOnItem(QTreeWidgetItem* dropped, QTreeWidgetItem* parent);
     void itemDroppedAbove(QTreeWidgetItem* dropped, QTreeWidgetItem* parent);
     void itemDroppedBelow(QTreeWidgetItem* dropped, QTreeWidgetItem* parent);
+    void itemDroppedOnViewport(QTreeWidgetItem* dropped);
 
     void doubleClicked(QTreeWidgetItem* item);
 };

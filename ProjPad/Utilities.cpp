@@ -14,6 +14,15 @@ namespace Utilities {
 
         return stat_buf.st_size;
     }
+    int utf8len(const std::string& str) {
+        int len = 0;
+        char* s = const_cast<char*>(str.data());
+        while (*s)
+            len += (*s++ & 0xc0) != 0x80;
+
+        return len;
+    }
+
 }
 namespace Cryptopp {
     CryptoPP::SecByteBlock getIv() {

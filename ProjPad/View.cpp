@@ -49,7 +49,11 @@ void View::saveSession() {
     session_.setOpenedTabs(openedTabs);
         
     // active tab
-    session_.setActiveTab(static_cast<EditContainer*>(tabWidget_->widget(tabWidget_->currentIndex()))->id());
+    int curTabIndex = tabWidget_->currentIndex();
+    if (curTabIndex != -1)
+        session_.setActiveTab(static_cast<EditContainer*>(tabWidget_->widget(curTabIndex))->id());
+    else
+        session_.setActiveTab(0);
 }
 void View::restoreSession() {
     // restore window position
@@ -59,8 +63,10 @@ void View::restoreSession() {
         QApplication::activeWindow()->showMaximized();
 
     // restore opened file
-    if (!session_.fileName().empty())
-        controller_->load(session_.fileName(), std::nullopt);
+    if (session_.fileName().empty())
+        return; // nothing else to restore
+
+    controller_->load(session_.fileName(), std::nullopt);
 
     // restore open tree nodes
     const auto expandedNodes = session_.expandedNodes();
@@ -160,10 +166,7 @@ void View::setupView(Ui::ProjPadClass* const ui) {
             controller_->load(fileName.toStdString(), std::nullopt);
     });
     connect(ui->actionSaveAs, &QAction::triggered, this, [this]() {
-        auto password = model_->password();
-        auto fileName = QFileDialog::getSaveFileName(QApplication::activeWindow(), "Save document as", QString(), QString("*.prp"));
-        if (!fileName.isEmpty())
-            controller_->save(fileName.toStdString());
+        saveAs();
     });
 
     connect(ui->actionSave, &QAction::triggered, this, [this]() {
@@ -181,6 +184,9 @@ void View::setupView(Ui::ProjPadClass* const ui) {
 
     connect(ui->deleteNode, &QPushButton::clicked, this, [this]() {
         QTreeWidgetItem* item = tree_->currentItem();
+        if (!item)
+            return;
+
         QString confirmText = "Item will be deleted. Proceed?";
         if (item->childCount() != 0)
             confirmText += " (all children items will be deleted also)";
@@ -226,6 +232,9 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     connect(tree_, &DeselectableTreeWidget::itemDroppedBelow, this, [this](QTreeWidgetItem* dropped, QTreeWidgetItem* parent) {
         controller_->moveNodeBelow(itemId(*dropped), itemId(*parent));
     });
+    connect(tree_, &DeselectableTreeWidget::itemDroppedOnViewport, this, [this](QTreeWidgetItem* dropped) {
+        controller_->moveNodeAfterAll(itemId(*dropped));
+    });
     connect(tree_, &DeselectableTreeWidget::doubleClicked, this, [this](QTreeWidgetItem* item) {
         if (model_->nodeType(itemId(*item)) == Node::Type::folder) {
             item->setExpanded(!item->isExpanded());
@@ -238,6 +247,9 @@ void View::setupView(Ui::ProjPadClass* const ui) {
     });
     connect(ui->actionExit, &QAction::triggered, this, [this]() {
         qApp->closeAllWindows();
+    });
+    connect(ui->actionNewProject, &QAction::triggered, this, [this]() {
+        controller_->createNewProject();
     });
     
     applyThemeWithFontOverride(settings_.theme());
@@ -345,6 +357,9 @@ void View::setIcon(Node::Type type, QTreeWidgetItem* item) {
 
 void View::enableSave() {
     save_->setEnabled(true);
+}
+void View::disableSave() {
+    save_->setEnabled(false);
 }
 
 void View::nodeDeleted(int id) {
@@ -462,3 +477,48 @@ void View::applyTabSession(const Session::TabSession& tabSession) {
     container->setLowerVScrollPos(ScrollPos(tabSession.lowerVScroll_));
     container->setLowerHScrollPos(ScrollPos(tabSession.lowerHScroll_));
 }
+bool View::saveAs() const {
+    auto password = model_->password();
+    auto fileName = QFileDialog::getSaveFileName(QApplication::activeWindow(), "Save document as", QString(), QString("*.prp"));
+    if (!fileName.isEmpty()) {
+        controller_->save(fileName.toStdString());
+        return true;
+    }
+    return false;
+}
+bool View::handleUnsavedProject() {
+    QMessageBox box(QMessageBox::Question, "Unsaved changes", "Project has been modified. Save before exit?",
+        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    box.setDefaultButton(QMessageBox::Cancel);
+    const auto boxResult = box.exec();
+    
+    if (boxResult == QMessageBox::Cancel)
+        return false;
+    if (boxResult == QMessageBox::No)
+        return true;
+        
+    //if (boxResult == QMessageBox::Yes)
+    if (model_->fileName()) {
+        controller_->save();
+        return true;
+    } else {
+        // Save as new file
+        return saveAs();
+    }
+}
+void View::closeProject() {
+    tree_->clear();
+    while (tabWidget_->count() != 0) {
+        QWidget* w = tabWidget_->widget(0);
+        tabWidget_->removeTab(0);
+        delete w;
+    }
+    if (model_)
+        model_->removeObserver(this);
+}
+void View::setModel(ModelInterface* model) {
+    model_ = model;
+    if (model_)
+        model_->addObserver(this);
+}
+

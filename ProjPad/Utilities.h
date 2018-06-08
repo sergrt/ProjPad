@@ -6,6 +6,7 @@
 
 namespace Utilities {
     long long fileSize(const std::string& fileName);
+    int utf8len(const std::string& str);
 }
 namespace Cryptopp {
     std::vector<unsigned char> encrypt(const std::string& src, const std::string& password);

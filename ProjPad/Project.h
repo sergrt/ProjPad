@@ -46,6 +46,7 @@ public:
     void moveNode(int itemId, std::optional<int> parentId) override;
     void moveNodeAbove(int itemId, int parentId) override;
     void moveNodeBelow(int itemId, int parentId) override;
+    void moveNodeAfterAll(int itemId) override;
 
     static void saveNode(const Node& node, pugi::xml_node& parentXmlNode);
     static std::unique_ptr<Node> loadNode(const pugi::xml_node& xmlNode);
@@ -56,6 +57,7 @@ public:
     void closeNode(int id) override;
 
     std::optional<std::string> fileName() const override;
+    bool hasChanged() const override;
 private:
     std::vector<Observer*> views_;
     //void notifyTextChanged(int id);
@@ -78,4 +80,7 @@ private:
 
     std::optional<std::string> fileName_;
     std::optional<std::string> password_;
+    std::vector<unsigned char> initialHash_;
+    std::vector<unsigned char> calculateHash() const;
+    void calculateHash(std::vector<unsigned char>& hash, Node& node) const;
 };

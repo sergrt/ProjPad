@@ -23,13 +23,16 @@ public:
     void updateTree() override;
 
     void enableSave() override;
+    void disableSave() override;
     void nodeAdded(int id, std::optional<int> parentId) override;
     void nodeRenamed(int id) override;
     void loadFailed() override;
     void filePasswordNeeded(const std::string& fileName) override;
     
     //void updateText(int id) override;
-
+    bool handleUnsavedProject() override;
+    void closeProject() override;
+    void setModel(ModelInterface* model) override;
 private:
     ModelInterface* model_;
     ControllerInterface* controller_;
@@ -60,6 +63,7 @@ private:
     void collectExpandedNodes(std::vector<int>& nodes, QTreeWidgetItem* root) const;
     std::vector<Session::TabSession> collectOpenedTabs() const;
     void applyTabSession(const Session::TabSession& tabSession);
+    bool saveAs() const;
 public slots:
     void tabTextChanged(int id, const std::string& text);
 };

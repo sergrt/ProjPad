@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Controller.h"
 #include <fstream>
+#include "Utilities.h"
 
 Controller::Controller() {
     model_ = new Project();
@@ -75,14 +76,19 @@ void Controller::moveNodeAbove(int itemId, int parentId) const {
 void Controller::moveNodeBelow(int itemId, int parentId) const {
     model_->moveNodeBelow(itemId, parentId);
 }
+void Controller::moveNodeAfterAll(int itemId) const {
+    model_->moveNodeAfterAll(itemId);
+}
+
 void Controller::updateViewSettings(const std::optional<QPoint>& pos, const std::optional<QSize>& size, const std::optional<bool> maximized) {
     view_->updateViewSettings(pos, size, maximized);
 }
 void exportNode(std::ofstream& f, const Node& node) {
     const std::string nodeName = node.name();
+    
     f << nodeName << "\n";
     const char fillChar = node.type() == Node::Type::folder ? '=' : '-';
-    for (int i = 0; i < nodeName.size(); ++i)
+    for (int i = 0; i < Utilities::utf8len(nodeName); ++i)
         f << fillChar;
     f << "\n" << "\n";
 
@@ -97,4 +103,20 @@ void Controller::exportProject(const std::string& fileName) const {
     std::ofstream f(fileName);
     for (auto i = model_->begin(); i != model_->end(); ++i)
         exportNode(f, *i->get());
+}
+bool Controller::handleUnsavedProject() const {
+    const bool allowClose = model_->hasChanged() ? view_->handleUnsavedProject() : true;
+    return allowClose;
+}
+void Controller::createNewProject() {
+    const bool allowClose = model_->hasChanged() ? view_->handleUnsavedProject() : true;
+    if (allowClose) {
+        view_->closeProject();
+        view_->disableSave();
+        ModelInterface* newModel = new Project();
+        view_->setModel(newModel);
+        
+        delete model_;
+        model_ = newModel;
+    }
 }
