@@ -75,6 +75,9 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>pugixml.lib;cryptlib.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;%(AdditionalDependencies);pugixml.lib</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>$(QTDIR)\bin\windeployqt.exe --release $(TargetPath)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Controller.cpp" />
