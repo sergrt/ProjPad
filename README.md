@@ -19,4 +19,4 @@ Finally, ProjPad can memorize not only the last open document, but whole "sessio
 * Session restore support
 * Themes support
 
-Download binaries here - [ProjPad.zip](../assets/ProjPad.zip) (requires Qt libraries).
+Download binaries here - [ProjPad.zip](assets/ProjPad.zip) (requires Qt libraries).
