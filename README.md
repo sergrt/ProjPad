@@ -1,7 +1,7 @@
 # ProjPad
 ProjPad is a clean and handy plain text editor for writers. Opposed to other editors, it operates with a "project" - a number of files and folders, organized as a tree structure and stored as single file. It allows not only to split longer papers, novels etc. into smaller parts (like chapters), but allow to have some reference information (like actors, places, facts) at the same project in special sections.
 
-![ProjPad_Interface](../assets/ProjPad_Interface.png)
+![ProjPad_Interface](assets/ProjPad_Interface.png)
 
 Text editor allows to have multiple text entities open at one time, and offers splittable window to allow refering to other part of the document while writing.
 
