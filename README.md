@@ -18,5 +18,6 @@ Finally, ProjPad can memorize not only the last open document, but whole "sessio
 * Export project to single text file
 * Session restore support
 * Themes support
+* Cross-platform (based on Qt libraries)
 
-Download binaries here - [ProjPad.zip](assets/ProjPad.zip) (requires Qt libraries).
+Download Windows binary here - [ProjPad.zip](assets/ProjPad.zip) (requires Qt libraries - [Qt_Libs.zip](assets/Qt_Libs.zip)).
